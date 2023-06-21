@@ -21,9 +21,7 @@ inline bool is_whitespace(char c) {
   return c == ' ' || c == '\t' || c == '\n' || c == '\r';
 }
 
-inline bool is_alphanumeric(char c) {
-  return is_numeric(c) || is_alpha(c);
-}
+inline bool is_alphanumeric(char c) { return is_numeric(c) || is_alpha(c); }
 
 inline bool is_punctuation(char c) {
   return c == '(' || c == ')' || c == '[' || c == ']' || c == '{' || c == '}' ||
@@ -97,7 +95,8 @@ std::shared_ptr<Token> get_symbol(ProgramText &t) {
 
   // Don't need to check for out of bounds since cur_char just
   // returns -1 once we've reached the end of the stream.
-  while (!is_whitespace(t.cur_char()) && !t.done() && is_alphanumeric(t.cur_char())) {
+  while (!is_whitespace(t.cur_char()) && !t.done() &&
+         is_alphanumeric(t.cur_char())) {
     str += t.cur_char();
     t.advance_char();
   }
@@ -256,8 +255,7 @@ std::shared_ptr<Token> get_operator(ProgramText &t) {
       if (next_char == '&') {
         token->type = TokenType::OpBand;
         t.advance_char();
-      }
-      else {
+      } else {
         token->type = TokenType::OpAnd;
       }
       break;
@@ -268,24 +266,22 @@ std::shared_ptr<Token> get_operator(ProgramText &t) {
       if (next_char == '|') {
         token->type = TokenType::OpBor;
         t.advance_char();
-      }
-      else {
+      } else {
         token->type = TokenType::OpOr;
       }
       break;
     }
     case '<': {
-      // Three potential cases: < (less than), <= (less than or equal to), or <> (not equals).
+      // Three potential cases: < (less than), <= (less than or equal to), or <>
+      // (not equals).
       t.advance_char();
       if (t.peek() == '=') {
         token->type = TokenType::OpLe;
         t.advance_char();
-      }
-      else if (t.peek() == '>') {
+      } else if (t.peek() == '>') {
         token->type = TokenType::OpNe;
         t.advance_char();
-      }
-      else {
+      } else {
         token->type = TokenType::OpLt;
       }
       break;
@@ -296,8 +292,7 @@ std::shared_ptr<Token> get_operator(ProgramText &t) {
       if (next_char == '=') {
         token->type = TokenType::OpGe;
         t.advance_char();
-      }
-      else {
+      } else {
         token->type = TokenType::OpGt;
       }
       break;
@@ -372,7 +367,8 @@ std::deque<std::shared_ptr<Token>> tokenize(ProgramText &t) {
       tokens.push_back(get_punctuation(t));
     }
 
-    else if (is_alpha(t.cur_char()) || (t.cur_char() == '_' && is_alpha(t.peek()))) {
+    else if (is_alpha(t.cur_char()) ||
+             (t.cur_char() == '_' && is_alpha(t.peek()))) {
       tokens.push_back(get_symbol(t));
     }
 
