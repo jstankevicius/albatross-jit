@@ -1,0 +1,3 @@
+if (functionCallWithoutArguments()) {
+  return function(1,2,3);
+}

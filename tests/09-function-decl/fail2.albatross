@@ -1,0 +1,7 @@
+var global int := 0;
+
+return 2;
+
+fun f int () {
+  return 1;
+}

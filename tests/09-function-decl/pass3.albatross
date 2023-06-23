@@ -1,0 +1,10 @@
+fun f1 int () {
+  return 1;
+}
+
+fun f2 void () {
+  a := 10;
+  return;
+}
+
+return 2;

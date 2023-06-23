@@ -1,0 +1,3 @@
+var variable int := 437;
+
+return variable;

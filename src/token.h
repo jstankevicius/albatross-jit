@@ -3,18 +3,16 @@
 #include <memory>
 #include <string>
 
-enum class TokenType {
-  Punctuation,
-
-  // Anything that isn't a literal - can be a function name,
-  // identifier, or a non-alphanumeric symbol like >=.
-  Name,
+enum class TokenType : unsigned char {
+  Identifier,
   KeywordIf,
   KeywordElse,
   KeywordWhile,
   KeywordReturn,
   KeywordOtherwise,
   KeywordRepeat,
+  KeywordFun,
+  KeywordVar,
 
   Semicolon,
   Comma,
@@ -22,6 +20,8 @@ enum class TokenType {
   Rparen,
   Lcurl,
   Rcurl,
+  Lbracket,
+  Rbracket,
 
   Assign,
 

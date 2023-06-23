@@ -1,0 +1,13 @@
+while (a <> 0) {
+  return a+b;
+} otherwise {
+    while (a <> 0) {
+      repeat(10) { return 1; }
+    } otherwise {
+      if (a) { return 1; }
+      else { if (b) { return 2; }
+      else { if (c) { return 3; }
+      else { return 4; }}}
+    }
+
+}

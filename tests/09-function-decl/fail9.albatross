@@ -1,0 +1,5 @@
+fun f1 int (argument int,anotherArgument string) (
+  return 1;
+)
+
+return 2;

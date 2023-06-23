@@ -1,0 +1,16 @@
+thisIsTheNameOfAVariable int := 1;
+anotherVariable string := "hello";
+anotherVariable char := 4 & 5;
+
+if (a+b) {
+  c := d;
+  return e;
+  repeat (f) {
+    g := 1 + a;
+  }
+  while (g) {
+    a := c + d;
+  }
+  return zzz;
+}
+

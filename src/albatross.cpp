@@ -23,7 +23,7 @@ int main(int argc, char *argv[]) {
   std::string content((std::istreambuf_iterator<char>(file)),
                       (std::istreambuf_iterator<char>()));
 
-  ProgramText handle(content);
+  ProgramText text(content);
 
-  auto tokens = tokenize(handle);
+  auto tokens = tokenize(text);
 }

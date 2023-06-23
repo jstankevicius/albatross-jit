@@ -1,0 +1,8 @@
+while (f1()) {
+  if (f2()) {
+    return f3();
+  }
+  repeat(f4() + f5() + 10 + a) {
+    return f6();
+  }
+}

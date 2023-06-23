@@ -1,0 +1,4 @@
+return variable + anotherVariable;
+return 1 * variable;
+return b % 473;
+return variable && variable;

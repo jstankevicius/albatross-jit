@@ -7,6 +7,7 @@
 #include <iostream>
 #include <memory>
 #include <string>
+#include <unordered_map>
 #include <vector>
 
 #include "error.h"
@@ -86,6 +87,18 @@ void ProgramText::skip_whitespace() {
 // "variable-name", etc. The lexer does not validate the names of the tokens, as
 // that is done later.
 std::shared_ptr<Token> get_symbol(ProgramText &t) {
+
+  static std::unordered_map<std::string, TokenType> keyword_map;
+  if (keyword_map.empty()) {
+    keyword_map["if"]        = TokenType::KeywordIf;
+    keyword_map["else"]      = TokenType::KeywordElse;
+    keyword_map["while"]     = TokenType::KeywordWhile;
+    keyword_map["return"]    = TokenType::KeywordReturn;
+    keyword_map["otherwise"] = TokenType::KeywordOtherwise;
+    keyword_map["repeat"]    = TokenType::KeywordRepeat;
+    keyword_map["fun"]       = TokenType::KeywordFun;
+  }
+
   auto token = std::make_shared<Token>();
   token->col_num = t.col_num;
   token->line_num = t.line_num;
@@ -95,6 +108,7 @@ std::shared_ptr<Token> get_symbol(ProgramText &t) {
 
   // Don't need to check for out of bounds since cur_char just
   // returns -1 once we've reached the end of the stream.
+  // TODO: This doesn't support underscores
   while (!is_whitespace(t.cur_char()) && !t.done() &&
          is_alphanumeric(t.cur_char())) {
     str += t.cur_char();
@@ -104,7 +118,7 @@ std::shared_ptr<Token> get_symbol(ProgramText &t) {
   token->string_value = str;
 
   // TODO: formatting?
-  token->type = TokenType::Name;
+  token->type = keyword_map.find(str) != keyword_map.end() ? keyword_map[str] : TokenType::Identifier;
   return token;
 }
 
@@ -117,11 +131,6 @@ std::shared_ptr<Token> get_numeric_literal(ProgramText &t) {
   token->stream = &t.stream;
   std::string num_literal;
   bool is_float_literal = false;
-
-  if (t.cur_char() == '-') {
-    num_literal += t.cur_char();
-    t.advance_char();
-  }
 
   while (is_numeric(t.cur_char())) {
     num_literal += t.cur_char();
@@ -156,25 +165,23 @@ std::shared_ptr<Token> get_numeric_literal(ProgramText &t) {
 // Returns a token for "punctuation". This is a catch-all term for tokens that
 // are not symbols or literals.
 std::shared_ptr<Token> get_punctuation(ProgramText &t) {
+
   auto token = std::make_shared<Token>();
   token->col_num = t.col_num;
   token->line_num = t.line_num;
   token->stream = &t.stream;
   token->string_value += t.cur_char();
-  token->type = TokenType::Punctuation;
 
   switch (t.cur_char()) {
     // All supported "punctuation" characters can be seen here:
-    case '(':
-    case ')':
-    case '{':
-    case '}':
-    case ':':
-    case '[':
-    case ']':
-    case ';':
-    case ',':
-      break;
+    case '(': token->type = TokenType::Lparen; break;
+    case ')': token->type = TokenType::Rparen; break;
+    case '{': token->type = TokenType::Lcurl; break;
+    case '}': token->type = TokenType::Rcurl; break;
+    case '[': token->type = TokenType::Lbracket; break;
+    case ']': token->type = TokenType::Rbracket; break;
+    case ';': token->type = TokenType::Semicolon; break;
+    case ',': token->type = TokenType::Comma; break;
     default:
       err_token(token, "unrecognized character");
       break;
@@ -331,12 +338,8 @@ std::deque<std::shared_ptr<Token>> tokenize(ProgramText &t) {
 
   while (!t.done()) {
     // printf("%c %u %u\n", t.cur_char(), t.line_num, t.col_num);
-    if (t.peek() == '.' || is_numeric(t.cur_char())) {
-      tokens.push_back(get_numeric_literal(t));
-    }
 
-    else if (is_numeric(t.cur_char()) ||
-             (t.cur_char() == '.' && is_numeric(t.peek()))) {
+    if (is_numeric(t.cur_char()) || (t.cur_char() == '.' && is_numeric(t.peek()))) {
       tokens.push_back(get_numeric_literal(t));
     }
 

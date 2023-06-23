@@ -1,0 +1,5 @@
+return 1;
+if (2) { return 3; }
+while (4) { return 5; }
+repeat (6) { return 7; }
+return 84298734;

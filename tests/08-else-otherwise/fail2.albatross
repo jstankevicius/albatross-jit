@@ -1,0 +1,7 @@
+while (a <> 10) {
+  a := a + 1;
+} otherwise {
+  return 3;
+} otherwise {
+  return 3;
+}

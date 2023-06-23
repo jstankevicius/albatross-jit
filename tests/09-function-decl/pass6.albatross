@@ -1,0 +1,13 @@
+fun f1 int (argument int) {
+  var local int := 0;
+  return 1;
+}
+
+fun f2 int (argument int, anotherArgument int) {
+  var local int := 2;
+  var anotherLocal string := (3 + 4);
+  var aChar char := 5 - 6 % 7;
+  return 7;
+}
+
+return 8;

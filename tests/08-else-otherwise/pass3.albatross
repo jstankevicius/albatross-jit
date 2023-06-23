@@ -1,0 +1,13 @@
+while (a <> 0) {
+    if (a==1) {
+      return 1;
+    } else {
+      return 0;
+    }
+} otherwise {
+    if (a<>1) {
+      return a;
+    } else {
+      return b;
+    }
+}

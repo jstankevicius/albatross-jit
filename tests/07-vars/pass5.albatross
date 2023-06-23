@@ -1,0 +1,5 @@
+var thisIsTheNameOfAVariable int := 1;
+var anotherVariable string := "hello";
+var anotherVariable char := 4 & 5;
+
+return 6 ^ 7;

@@ -47,7 +47,7 @@ void err_token(std::shared_ptr<Token> token, std::string message) {
     std::cout << "^";
   }
 
-  std::cout << " " << message << std::endl;
+  std::cout << "^ " << message << std::endl;
 
   exit(-1);
 }
