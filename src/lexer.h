@@ -17,7 +17,7 @@ struct ProgramText {
 
   std::string stream;
 
-  ProgramText(std::string& stream) : stream(stream) {}
+  ProgramText(std::string &stream) : stream(stream) {}
 
   bool done();
   char cur_char();
@@ -26,4 +26,4 @@ struct ProgramText {
   void skip_whitespace();
 };
 
-std::deque<std::shared_ptr<Token>> tokenize(ProgramText& t);
+std::deque<std::shared_ptr<Token>> tokenize(ProgramText &t);

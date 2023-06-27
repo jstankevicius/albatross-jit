@@ -87,16 +87,15 @@ void ProgramText::skip_whitespace() {
 // "variable-name", etc. The lexer does not validate the names of the tokens, as
 // that is done later.
 std::shared_ptr<Token> get_symbol(ProgramText &t) {
-
   static std::unordered_map<std::string, TokenType> keyword_map;
   if (keyword_map.empty()) {
-    keyword_map["if"]        = TokenType::KeywordIf;
-    keyword_map["else"]      = TokenType::KeywordElse;
-    keyword_map["while"]     = TokenType::KeywordWhile;
-    keyword_map["return"]    = TokenType::KeywordReturn;
+    keyword_map["if"] = TokenType::KeywordIf;
+    keyword_map["else"] = TokenType::KeywordElse;
+    keyword_map["while"] = TokenType::KeywordWhile;
+    keyword_map["return"] = TokenType::KeywordReturn;
     keyword_map["otherwise"] = TokenType::KeywordOtherwise;
-    keyword_map["repeat"]    = TokenType::KeywordRepeat;
-    keyword_map["fun"]       = TokenType::KeywordFun;
+    keyword_map["repeat"] = TokenType::KeywordRepeat;
+    keyword_map["fun"] = TokenType::KeywordFun;
   }
 
   auto token = std::make_shared<Token>();
@@ -118,7 +117,9 @@ std::shared_ptr<Token> get_symbol(ProgramText &t) {
   token->string_value = str;
 
   // TODO: formatting?
-  token->type = keyword_map.find(str) != keyword_map.end() ? keyword_map[str] : TokenType::Identifier;
+  token->type = keyword_map.find(str) != keyword_map.end()
+                    ? keyword_map[str]
+                    : TokenType::Identifier;
   return token;
 }
 
@@ -165,7 +166,6 @@ std::shared_ptr<Token> get_numeric_literal(ProgramText &t) {
 // Returns a token for "punctuation". This is a catch-all term for tokens that
 // are not symbols or literals.
 std::shared_ptr<Token> get_punctuation(ProgramText &t) {
-
   auto token = std::make_shared<Token>();
   token->col_num = t.col_num;
   token->line_num = t.line_num;
@@ -173,18 +173,34 @@ std::shared_ptr<Token> get_punctuation(ProgramText &t) {
   token->string_value += t.cur_char();
 
   switch (t.cur_char()) {
-    // All supported "punctuation" characters can be seen here:
-    case '(': token->type = TokenType::Lparen; break;
-    case ')': token->type = TokenType::Rparen; break;
-    case '{': token->type = TokenType::Lcurl; break;
-    case '}': token->type = TokenType::Rcurl; break;
-    case '[': token->type = TokenType::Lbracket; break;
-    case ']': token->type = TokenType::Rbracket; break;
-    case ';': token->type = TokenType::Semicolon; break;
-    case ',': token->type = TokenType::Comma; break;
-    default:
-      err_token(token, "unrecognized character");
-      break;
+  // All supported "punctuation" characters can be seen here:
+  case '(':
+    token->type = TokenType::Lparen;
+    break;
+  case ')':
+    token->type = TokenType::Rparen;
+    break;
+  case '{':
+    token->type = TokenType::Lcurl;
+    break;
+  case '}':
+    token->type = TokenType::Rcurl;
+    break;
+  case '[':
+    token->type = TokenType::Lbracket;
+    break;
+  case ']':
+    token->type = TokenType::Rbracket;
+    break;
+  case ';':
+    token->type = TokenType::Semicolon;
+    break;
+  case ',':
+    token->type = TokenType::Comma;
+    break;
+  default:
+    err_token(token, "unrecognized character");
+    break;
   }
 
   t.advance_char();
@@ -236,97 +252,97 @@ std::shared_ptr<Token> get_operator(ProgramText &t) {
   char cur_char = t.cur_char();
   char next_char = t.peek();
   switch (cur_char) {
-    case '+':
-      token->type = TokenType::OpPlus;
+  case '+':
+    token->type = TokenType::OpPlus;
+    t.advance_char();
+    break;
+  case '-':
+    token->type = TokenType::OpMinus;
+    t.advance_char();
+    break;
+  case '*':
+    token->type = TokenType::OpTimes;
+    t.advance_char();
+    break;
+  case '/':
+    token->type = TokenType::OpDiv;
+    t.advance_char();
+    break;
+  case '%':
+    token->type = TokenType::OpRem;
+    t.advance_char();
+    break;
+  case '&': {
+    // Two cases here: & (binary AND), or && (logical AND).
+    t.advance_char();
+    if (next_char == '&') {
+      token->type = TokenType::OpBand;
       t.advance_char();
-      break;
-    case '-':
-      token->type = TokenType::OpMinus;
-      t.advance_char();
-      break;
-    case '*':
-      token->type = TokenType::OpTimes;
-      t.advance_char();
-      break;
-    case '/':
-      token->type = TokenType::OpDiv;
-      t.advance_char();
-      break;
-    case '%':
-      token->type = TokenType::OpRem;
-      t.advance_char();
-      break;
-    case '&': {
-      // Two cases here: & (binary AND), or && (logical AND).
-      t.advance_char();
-      if (next_char == '&') {
-        token->type = TokenType::OpBand;
-        t.advance_char();
-      } else {
-        token->type = TokenType::OpAnd;
-      }
-      break;
+    } else {
+      token->type = TokenType::OpAnd;
     }
-    case '|': {
-      // Two cases here: | (binary OR), or || (logical OR).
+    break;
+  }
+  case '|': {
+    // Two cases here: | (binary OR), or || (logical OR).
+    t.advance_char();
+    if (next_char == '|') {
+      token->type = TokenType::OpBor;
       t.advance_char();
-      if (next_char == '|') {
-        token->type = TokenType::OpBor;
-        t.advance_char();
-      } else {
-        token->type = TokenType::OpOr;
-      }
-      break;
+    } else {
+      token->type = TokenType::OpOr;
     }
-    case '<': {
-      // Three potential cases: < (less than), <= (less than or equal to), or <>
-      // (not equals).
+    break;
+  }
+  case '<': {
+    // Three potential cases: < (less than), <= (less than or equal to), or <>
+    // (not equals).
+    t.advance_char();
+    if (t.peek() == '=') {
+      token->type = TokenType::OpLe;
       t.advance_char();
-      if (t.peek() == '=') {
-        token->type = TokenType::OpLe;
-        t.advance_char();
-      } else if (t.peek() == '>') {
-        token->type = TokenType::OpNe;
-        t.advance_char();
-      } else {
-        token->type = TokenType::OpLt;
-      }
-      break;
-    }
-    case '>': {
-      // Only two cases: > (greater than) or >= (greater than or equal to).
+    } else if (t.peek() == '>') {
+      token->type = TokenType::OpNe;
       t.advance_char();
-      if (next_char == '=') {
-        token->type = TokenType::OpGe;
-        t.advance_char();
-      } else {
-        token->type = TokenType::OpGt;
-      }
+    } else {
+      token->type = TokenType::OpLt;
+    }
+    break;
+  }
+  case '>': {
+    // Only two cases: > (greater than) or >= (greater than or equal to).
+    t.advance_char();
+    if (next_char == '=') {
+      token->type = TokenType::OpGe;
+      t.advance_char();
+    } else {
+      token->type = TokenType::OpGt;
+    }
+    break;
+  }
+  case '=': {
+    if (t.peek() == '=') {
+      token->type = TokenType::OpEq;
+      t.advance_char();
+      t.advance_char();
       break;
-    }
-    case '=': {
-      if (t.peek() == '=') {
-        token->type = TokenType::OpEq;
-        t.advance_char();
-        t.advance_char();
-        break;
-      } else {
-        err_token(token, "Unrecognized operator");
-      }
-    }
-    case ':': {
-      if (t.peek() == '=') {
-        token->type = TokenType::Assign;
-        t.advance_char();
-        t.advance_char();
-        break;
-      } else {
-        err_token(token, "Unrecognized operator");
-      }
-    }
-    default: {
+    } else {
       err_token(token, "Unrecognized operator");
     }
+  }
+  case ':': {
+    if (t.peek() == '=') {
+      token->type = TokenType::Assign;
+      t.advance_char();
+      t.advance_char();
+      break;
+    } else {
+      err_token(token, "Unrecognized operator");
+    }
+  }
+  default: {
+    err_token(token, "Unrecognized operator");
+  }
   }
 
   return token;
@@ -339,7 +355,8 @@ std::deque<std::shared_ptr<Token>> tokenize(ProgramText &t) {
   while (!t.done()) {
     // printf("%c %u %u\n", t.cur_char(), t.line_num, t.col_num);
 
-    if (is_numeric(t.cur_char()) || (t.cur_char() == '.' && is_numeric(t.peek()))) {
+    if (is_numeric(t.cur_char()) ||
+        (t.cur_char() == '.' && is_numeric(t.peek()))) {
       tokens.push_back(get_numeric_literal(t));
     }
 
@@ -350,7 +367,7 @@ std::deque<std::shared_ptr<Token>> tokenize(ProgramText &t) {
 
     // Comments. We'll just skip the rest of the line here.
     else if (t.cur_char() == '#') {
-      t.advance_char();  // skip over ;
+      t.advance_char(); // skip over ;
       while (t.cur_char() != '\r' && t.cur_char() != '\n' && !t.done()) {
         t.advance_char();
       }

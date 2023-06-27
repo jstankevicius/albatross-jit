@@ -7,5 +7,5 @@
 #include "ast.h"
 #include "token.h"
 
-std::unique_ptr<StmtNode>
-parse_stmt_or_var(std::deque<std::shared_ptr<Token>>& tokens);
+std::shared_ptr<StmtNode>
+parse_stmt(std::deque<std::shared_ptr<Token>> &tokens);

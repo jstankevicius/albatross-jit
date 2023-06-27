@@ -61,7 +61,7 @@ struct Token {
   // of getting the parent stream in the future. Thankfully fixing
   // this should only be a matter of fixing lexer.cpp, error.cpp,
   // and this file.
-  std::string* stream;
+  std::string *stream;
 
   TokenType type;
 

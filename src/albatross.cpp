@@ -4,6 +4,7 @@
 #include <string>
 
 #include "lexer.h"
+#include "parser.h"
 
 int main(int argc, char *argv[]) {
   if (argc < 2) {
@@ -26,4 +27,5 @@ int main(int argc, char *argv[]) {
   ProgramText text(content);
 
   auto tokens = tokenize(text);
+  parse_stmt(tokens);
 }
