@@ -4,10 +4,13 @@
 #include <string>
 #include <variant>
 #include <vector>
+#include <deque>
 
 #include "token.h"
 
 typedef enum {
+
+  // Infix operators
   OpOr,
   OpAnd,
   OpBor,
@@ -24,26 +27,32 @@ typedef enum {
   OpTimes,
   OpDiv,
   OpRem,
-} BinOp;
 
-typedef enum { OpNot, OpNeg } UnOp;
+  // Prefix operators
+  OpNot,
+  OpNeg,
+
+  // Postfix operators
+  OpSub
+} Operator;
 
 typedef enum { IntType, StringType, VoidType } Type;
 
 typedef struct ExpNode {
 
-  enum { IntExp, StringExp, BinOpExp, UnOpExp, CallExp, VarExp } kind;
+  // The first three are terminals, the last two are nonterminals. 
+  enum { IntExp, StringExp, VarExp, BinopExp, UnopExp, CallExp } kind;
+
+  typedef struct {
+    Operator op;
+    std::shared_ptr<ExpNode> e;
+  } UnOps;
 
   typedef struct {
     std::shared_ptr<ExpNode> e1;
-    BinOp op;
+    Operator op;
     std::shared_ptr<ExpNode> e2;
   } BinOps;
-
-  typedef struct {
-    UnOp op;
-    std::shared_ptr<ExpNode> e;
-  } UnOps;
 
   typedef struct {
     std::string name;
@@ -57,6 +66,24 @@ typedef struct ExpNode {
   // TODO: Add IntrinsicOps
 
   std::variant<int, std::string, BinOps, UnOps, CallOps, VarOps> data;
+
+  std::string to_str() {
+    switch (kind) {
+      case IntExp: return "(" + std::to_string(std::get<int>(data)) + ")";
+      case BinopExp: {
+        BinOps ops = std::get<BinOps>(data);
+        std::string op_str = "";
+        switch (ops.op) {
+          case Operator::OpPlus: {op_str = "+"; break; }
+          case Operator::OpTimes: {op_str = "*"; break; }
+          case Operator::OpDiv: {op_str = "/"; break;}
+          default: { printf("found unrecognized operator\n"); exit(-1); }
+        }
+        return "(" + ops.e1->to_str() + op_str + ops.e2->to_str() + ")";
+      }
+      default: exit(-1);
+    }
+  }
 
 } ExpNode;
 
@@ -107,7 +134,11 @@ using StmtOps =
 using ExpOps = std::variant<int, std::string, ExpNode::BinOps, ExpNode::UnOps,
                             ExpNode::CallOps, ExpNode::VarOps>;
 
+ExpNode_p exp_bp(std::deque<std::shared_ptr<Token>>& tokens, int bp);
+ExpNode_p parse_expression(std::deque<std::shared_ptr<Token>>& tokens);
 ExpNode_p new_int_node(int ival);
+ExpNode_p new_unop_node(Operator op, ExpNode_p e);
+ExpNode_p new_binop_node(Operator op, ExpNode_p lhs, ExpNode_p rhs);
 
 StmtNode_p new_assign_node(std::string lhs, ExpNode_p rhs);
 StmtNode_p new_if_node(ExpNode_p cond, std::vector<StmtNode_p> &then_stmts,

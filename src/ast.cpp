@@ -14,6 +14,23 @@ ExpNode_p new_int_node(int ival) {
   return p;
 }
 
+ExpNode_p new_binop_node(Operator op, ExpNode_p lhs, ExpNode_p rhs) {
+  auto p = std::make_shared<ExpNode>();
+  ExpOps binops = ExpNode::BinOps{lhs, op, rhs}; 
+  p->kind = ExpNode::BinopExp;
+  std::visit(assign_to(p->data), binops);
+  return p;
+}
+
+ExpNode_p new_unop_node(Operator op, ExpNode_p e) {
+  auto p = std::make_shared<ExpNode>();
+  ExpOps unops = ExpNode::UnOps{op, e};
+  p->kind = ExpNode::UnopExp;
+  std::visit(assign_to(p->data), unops);
+  return p;
+}
+
+
 StmtNode_p new_assign_node(std::string lhs, ExpNode_p rhs) {
   auto p = std::make_shared<StmtNode>();
   StmtOps assign = StmtNode::AssignOps{lhs, rhs};

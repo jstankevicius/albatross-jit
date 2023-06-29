@@ -400,8 +400,5 @@ std::deque<std::shared_ptr<Token>> tokenize(ProgramText &t) {
     t.skip_whitespace();
   }
 
-  for (const auto &token : tokens) {
-    std::cout << token->string_value << "\n";
-  }
   return tokens;
 }
