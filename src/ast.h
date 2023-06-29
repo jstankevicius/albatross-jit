@@ -68,20 +68,38 @@ typedef struct ExpNode {
   std::variant<int, std::string, BinOps, UnOps, CallOps, VarOps> data;
 
   std::string to_str() {
+    std::string op_str = "";
     switch (kind) {
       case IntExp: return "(" + std::to_string(std::get<int>(data)) + ")";
       case BinopExp: {
         BinOps ops = std::get<BinOps>(data);
-        std::string op_str = "";
         switch (ops.op) {
           case Operator::OpPlus: {op_str = "+"; break; }
           case Operator::OpTimes: {op_str = "*"; break; }
           case Operator::OpDiv: {op_str = "/"; break;}
-          default: { printf("found unrecognized operator\n"); exit(-1); }
+          default: { 
+            printf("to_str(): found unrecognized binary operator\n"); 
+            exit(-1); 
+          }
         }
         return "(" + ops.e1->to_str() + op_str + ops.e2->to_str() + ")";
       }
-      default: exit(-1);
+      case UnopExp: {
+        UnOps ops = std::get<UnOps>(data);
+        switch (ops.op) {
+          case Operator::OpMinus: {op_str = "-"; break; }
+          case Operator::OpNot: { op_str = "!"; break; }
+          default: { 
+            printf("to_str(): found unrecognized unary operator\n"); 
+            exit(-1); 
+          }
+        }
+        return "(" + op_str + " " + ops.e->to_str() + ")";
+      }
+      default: {
+        printf("ERROR in to_str(): unhandled case\n");
+        exit(-1);
+      };
     }
   }
 

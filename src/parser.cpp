@@ -25,7 +25,7 @@ OpInfo op_binding_power(const std::deque<std::shared_ptr<Token>>& tokens, bool m
   TokenType op = tokens.front()->type;
   switch (op) {
     case TokenType::OpPlus:   return OpInfo{Operator::OpPlus,  5,  6, OpInfo::Infix};
-    case TokenType::OpMinus:  return minus_prefix_flag ? OpInfo{Operator::OpMinus, 11, -1, OpInfo::Prefix} : OpInfo{Operator::OpMinus, 5, 6, OpInfo::Infix};
+    case TokenType::OpMinus:  return minus_prefix_flag ? OpInfo{Operator::OpMinus, -1, 9, OpInfo::Prefix} : OpInfo{Operator::OpMinus, 5, 6, OpInfo::Infix};
     case TokenType::OpTimes:  return OpInfo{Operator::OpTimes, 7,  8, OpInfo::Infix};
     case TokenType::OpDiv:    return OpInfo{Operator::OpDiv,   7,  8, OpInfo::Infix};
     case TokenType::OpNot:    return OpInfo{Operator::OpNot,  -1, 11, OpInfo::Prefix};
@@ -45,20 +45,21 @@ ExpNode_p exp_bp(std::deque<std::shared_ptr<Token>>& tokens, int min_bp) {
       lhs = parse_int_expr(tokens);
       break;
     };
+
     // TODO: Add identifiers
     case TokenType::Lparen: {
-      printf("encountered lparen\n");
       expect_token_type(TokenType::Lparen, tokens);
       lhs = exp_bp(tokens, 0);
-      printf("Expecting an RPAREN now\n");
       expect_token_type(TokenType::Rparen, tokens);
       break;
     }
     // Well, it can pretty much ONLY be a prefix operator.
     case TokenType::OpMinus:
+      printf("found negative\n");
     case TokenType::OpNot: {
       OpInfo info = op_binding_power(tokens, true);
-      auto r_bp = front->type == TokenType::OpMinus ? -1 : info.r_bp;
+      assert(info.kind == OpInfo::Prefix);
+      auto r_bp = info.r_bp;
 
       // Consume the operator; it is guaranteed to be either OpMinus or OpNot
       expect_any_token(tokens);
@@ -68,12 +69,18 @@ ExpNode_p exp_bp(std::deque<std::shared_ptr<Token>>& tokens, int min_bp) {
       break;
     }
 
-    default: err_token(front, "Expected literal, identifier, paren, or prefix operator");
+    default: 
+      err_token(front, "Expected literal, identifier, paren, or prefix operator");
   }
+
+
   while (1) {
-    if (tokens.empty() || tokens.front()->type == TokenType::Semicolon || tokens.front()->type == TokenType::Rparen) {
+
+    // Check for EOF:
+    if (tokens.empty()) {
       break;
     }
+
     OpInfo info = op_binding_power(tokens);
     if (info.kind == OpInfo::Postfix) {
       int l_bp = info.l_bp;
@@ -106,6 +113,9 @@ ExpNode_p exp_bp(std::deque<std::shared_ptr<Token>>& tokens, int min_bp) {
       continue;
     }
 
+    // Anything that isn't an infix or postfix token (like a paren or semicolon)
+    // will fall through to this `break` and exit the loop. This will hand
+    // control back to whatever function called parse_expression so that we can
     break;
   }
 
@@ -182,8 +192,7 @@ StmtNode_p parse_return(std::deque<std::shared_ptr<Token>> &tokens) {
   expect_token_type(TokenType::KeywordReturn, tokens);
   ExpNode_p ret_exp = parse_expression(tokens);
   expect_token_type(TokenType::Semicolon, tokens);
-  printf("returning ret_node\n");
-  return std::make_shared<StmtNode>();
+  return new_return_node(ret_exp);
 }
 
 StmtNode_p parse_stmt(std::deque<std::shared_ptr<Token>> &tokens) {
@@ -193,21 +202,9 @@ StmtNode_p parse_stmt(std::deque<std::shared_ptr<Token>> &tokens) {
   auto p = std::make_shared<StmtNode>();
 
   switch (front->type) {
-  case TokenType::KeywordIf:
-    break;
-  case TokenType::KeywordWhile:
-    break;
-  case TokenType::KeywordRepeat:
-    break;
   case TokenType::KeywordReturn:
     printf("Parsing return statement\n");
     return parse_return(tokens);
-  case TokenType::KeywordVar:
-    break;
-  case TokenType::KeywordFun:
-    break;
-  case TokenType::Identifier:
-    break;
   default:
     err_token(front, "expected a statement");
   }
