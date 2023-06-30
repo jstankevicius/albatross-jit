@@ -7,6 +7,7 @@ template <class T> inline auto assign_to(T &dst) {
   return [&dst](auto const &src) { dst = src; };
 }
 
+// TODO: These should all be simplified, since there's a TON of repeated code.
 ExpNode_p new_int_node(int ival) {
   auto p = std::make_shared<ExpNode>();
   ExpOps i = ival;
@@ -42,5 +43,26 @@ StmtNode_p new_return_node(ExpNode_p ret_exp) {
   auto p = std::make_shared<StmtNode>();
   StmtOps ret = StmtNode::RetOps{ret_exp};
   std::visit(assign_to(p->data), ret);
+  return p;
+}
+
+StmtNode_p new_if_node(ExpNode_p cond, std::vector<StmtNode_p>& then_stmts, std::vector<StmtNode_p>& else_stmts) {
+  auto p = std::make_shared<StmtNode>();
+  StmtOps if_stmt = StmtNode::IfOps{cond, then_stmts, else_stmts};
+  std::visit(assign_to(p->data), if_stmt);
+  return p;
+}
+
+StmtNode_p new_while_node(ExpNode_p cond, std::vector<StmtNode_p>& body_stmts, std::vector<StmtNode_p>& otherwise_stmts) {
+  auto p = std::make_shared<StmtNode>();
+  StmtOps while_stmt = StmtNode::WhileOps{cond, body_stmts, otherwise_stmts};
+  std::visit(assign_to(p->data), while_stmt);
+  return p;
+}
+
+StmtNode_p new_repeat_node(ExpNode_p cond, std::vector<StmtNode_p>& body_stmts) {
+  auto p = std::make_shared<StmtNode>();
+  StmtOps repeat_stmt = StmtNode::RepeatOps{cond, body_stmts};
+  std::visit(assign_to(p->data), repeat_stmt);
   return p;
 }

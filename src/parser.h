@@ -13,3 +13,6 @@ ExpNode_p parse_int_expr(std::deque<std::shared_ptr<Token>> &tokens);
 
 std::shared_ptr<StmtNode>
 parse_stmt(std::deque<std::shared_ptr<Token>> &tokens);
+
+std::vector<std::shared_ptr<StmtNode>>
+parse_stmts(std::deque<std::shared_ptr<Token>> &tokens);

@@ -27,5 +27,5 @@ int main(int argc, char *argv[]) {
   ProgramText text(content);
 
   auto tokens = tokenize(text);
-  parse_stmt(tokens);
+  parse_stmts(tokens);
 }

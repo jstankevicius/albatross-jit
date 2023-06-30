@@ -9,7 +9,7 @@
 #include "token.h"
 
 typedef enum {
-
+  Invalid,
   // Infix operators
   OpOr,
   OpAnd,
@@ -161,5 +161,7 @@ ExpNode_p new_binop_node(Operator op, ExpNode_p lhs, ExpNode_p rhs);
 StmtNode_p new_assign_node(std::string lhs, ExpNode_p rhs);
 StmtNode_p new_if_node(ExpNode_p cond, std::vector<StmtNode_p> &then_stmts,
                        std::vector<StmtNode_p> &else_stmts);
-
+StmtNode_p new_while_node(ExpNode_p cond, std::vector<StmtNode_p> &body_stmts,
+                       std::vector<StmtNode_p> &otherwise_stmts);
 StmtNode_p new_return_node(ExpNode_p ret_exp);
+StmtNode_p new_repeat_node(ExpNode_p cond, std::vector<StmtNode_p>& body_stmts);
