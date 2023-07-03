@@ -1,10 +1,10 @@
 #pragma once
 
+#include <deque>
 #include <memory>
 #include <string>
 #include <variant>
 #include <vector>
-#include <deque>
 
 #include "token.h"
 
@@ -38,9 +38,14 @@ typedef enum {
 
 typedef enum { IntType, StringType, VoidType } Type;
 
+typedef struct TypeNode {
+  std::shared_ptr<Token> name_token;
+  Type type;
+} TypeNode;
+
 typedef struct ExpNode {
 
-  // The first three are terminals, the last two are nonterminals. 
+  // The first three are terminals, the last two are nonterminals.
   enum { IntExp, StringExp, VarExp, BinopExp, UnopExp, CallExp } kind;
 
   typedef struct {
@@ -70,36 +75,52 @@ typedef struct ExpNode {
   std::string to_str() {
     std::string op_str = "";
     switch (kind) {
-      case IntExp: return "(" + std::to_string(std::get<int>(data)) + ")";
-      case BinopExp: {
-        BinOps ops = std::get<BinOps>(data);
-        switch (ops.op) {
-          case Operator::OpPlus: {op_str = "+"; break; }
-          case Operator::OpTimes: {op_str = "*"; break; }
-          case Operator::OpDiv: {op_str = "/"; break;}
-          default: { 
-            printf("to_str(): found unrecognized binary operator\n"); 
-            exit(-1); 
-          }
-        }
-        return "(" + ops.e1->to_str() + op_str + ops.e2->to_str() + ")";
+    case IntExp:
+      return "(" + std::to_string(std::get<int>(data)) + ")";
+    case BinopExp: {
+      BinOps ops = std::get<BinOps>(data);
+      switch (ops.op) {
+      case Operator::OpPlus: {
+        op_str = "+";
+        break;
       }
-      case UnopExp: {
-        UnOps ops = std::get<UnOps>(data);
-        switch (ops.op) {
-          case Operator::OpMinus: {op_str = "-"; break; }
-          case Operator::OpNot: { op_str = "!"; break; }
-          default: { 
-            printf("to_str(): found unrecognized unary operator\n"); 
-            exit(-1); 
-          }
-        }
-        return "(" + op_str + " " + ops.e->to_str() + ")";
+      case Operator::OpTimes: {
+        op_str = "*";
+        break;
+      }
+      case Operator::OpDiv: {
+        op_str = "/";
+        break;
       }
       default: {
-        printf("ERROR in to_str(): unhandled case\n");
+        printf("to_str(): found unrecognized binary operator\n");
         exit(-1);
-      };
+      }
+      }
+      return "(" + ops.e1->to_str() + op_str + ops.e2->to_str() + ")";
+    }
+    case UnopExp: {
+      UnOps ops = std::get<UnOps>(data);
+      switch (ops.op) {
+      case Operator::OpMinus: {
+        op_str = "-";
+        break;
+      }
+      case Operator::OpNot: {
+        op_str = "!";
+        break;
+      }
+      default: {
+        printf("to_str(): found unrecognized unary operator\n");
+        exit(-1);
+      }
+      }
+      return "(" + op_str + " " + ops.e->to_str() + ")";
+    }
+    default: {
+      printf("ERROR in to_str(): unhandled case\n");
+      exit(-1);
+    };
     }
   }
 
@@ -109,9 +130,15 @@ typedef struct StmtNode {
   enum { AssignStmt, IfStmt, WhileStmt, RepeatStmt, CallStmt, RetStmt } kind;
 
   typedef struct {
-    std::string lhs;
+    std::shared_ptr<ExpNode> lhs;
     std::shared_ptr<ExpNode> rhs;
   } AssignOps;
+
+  typedef struct {
+    std::string lhs;
+    Type type;
+    std::shared_ptr<ExpNode> rhs;
+  } VardecOps;
 
   typedef struct {
     std::shared_ptr<ExpNode> cond;
@@ -136,32 +163,50 @@ typedef struct StmtNode {
   } CallOps;
 
   typedef struct {
+    std::string name;
+    Type ret_type;
+    std::vector<TypeNode> params;
+    std::vector<std::shared_ptr<StmtNode>> body;
+  } FundecOps;
+
+  typedef struct {
     std::shared_ptr<ExpNode> ret_exp;
   } RetOps;
 
   // TODO: Add IntrinsicStmt
 
-  std::variant<AssignOps, IfOps, WhileOps, RepeatOps, CallOps, RetOps> data;
+  std::variant<VardecOps, AssignOps, IfOps, WhileOps, RepeatOps, CallOps,
+               FundecOps, RetOps>
+      data;
 } StmtNode;
 
 using StmtNode_p = std::shared_ptr<StmtNode>;
 using ExpNode_p = std::shared_ptr<ExpNode>;
 using StmtOps =
-    std::variant<StmtNode::AssignOps, StmtNode::IfOps, StmtNode::WhileOps,
-                 StmtNode::RepeatOps, StmtNode::CallOps, StmtNode::RetOps>;
+    std::variant<StmtNode::VardecOps, StmtNode::AssignOps, StmtNode::IfOps,
+                 StmtNode::WhileOps, StmtNode::RepeatOps, StmtNode::CallOps,
+                 StmtNode::FundecOps, StmtNode::RetOps>;
 using ExpOps = std::variant<int, std::string, ExpNode::BinOps, ExpNode::UnOps,
                             ExpNode::CallOps, ExpNode::VarOps>;
 
-ExpNode_p exp_bp(std::deque<std::shared_ptr<Token>>& tokens, int bp);
-ExpNode_p parse_expression(std::deque<std::shared_ptr<Token>>& tokens);
+ExpNode_p exp_bp(std::deque<std::shared_ptr<Token>> &tokens, int bp);
+ExpNode_p parse_expression(std::deque<std::shared_ptr<Token>> &tokens);
 ExpNode_p new_int_node(int ival);
 ExpNode_p new_unop_node(Operator op, ExpNode_p e);
 ExpNode_p new_binop_node(Operator op, ExpNode_p lhs, ExpNode_p rhs);
+ExpNode_p new_var_node(std::string name);
+ExpNode_p new_str_node(std::string str);
+ExpNode_p new_call_expr(std::string name, std::vector<ExpNode_p> &args);
 
-StmtNode_p new_assign_node(std::string lhs, ExpNode_p rhs);
+StmtNode_p new_assign_node(ExpNode_p lhs, ExpNode_p rhs);
 StmtNode_p new_if_node(ExpNode_p cond, std::vector<StmtNode_p> &then_stmts,
                        std::vector<StmtNode_p> &else_stmts);
 StmtNode_p new_while_node(ExpNode_p cond, std::vector<StmtNode_p> &body_stmts,
-                       std::vector<StmtNode_p> &otherwise_stmts);
+                          std::vector<StmtNode_p> &otherwise_stmts);
 StmtNode_p new_return_node(ExpNode_p ret_exp);
-StmtNode_p new_repeat_node(ExpNode_p cond, std::vector<StmtNode_p>& body_stmts);
+StmtNode_p new_repeat_node(ExpNode_p cond, std::vector<StmtNode_p> &body_stmts);
+StmtNode_p new_fundec_node(std::string fun_name, Type ret_type,
+                           std::vector<TypeNode> &params,
+                           std::vector<StmtNode_p> body);
+StmtNode_p new_vardec_node(std::string name, Type type, ExpNode_p rhs);
+StmtNode_p new_call_node(std::string name, std::vector<ExpNode_p> args);

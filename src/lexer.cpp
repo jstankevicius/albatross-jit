@@ -89,6 +89,7 @@ void ProgramText::skip_whitespace() {
 std::shared_ptr<Token> get_symbol(ProgramText &t) {
   static std::unordered_map<std::string, TokenType> keyword_map;
   if (keyword_map.empty()) {
+    keyword_map["var"] = TokenType::KeywordVar;
     keyword_map["if"] = TokenType::KeywordIf;
     keyword_map["else"] = TokenType::KeywordElse;
     keyword_map["while"] = TokenType::KeywordWhile;
@@ -96,6 +97,9 @@ std::shared_ptr<Token> get_symbol(ProgramText &t) {
     keyword_map["otherwise"] = TokenType::KeywordOtherwise;
     keyword_map["repeat"] = TokenType::KeywordRepeat;
     keyword_map["fun"] = TokenType::KeywordFun;
+    keyword_map["int"] = TokenType::TypeName;
+    keyword_map["string"] = TokenType::TypeName;
+    keyword_map["void"] = TokenType::TypeName;
   }
 
   auto token = std::make_shared<Token>();
@@ -272,6 +276,11 @@ std::shared_ptr<Token> get_operator(ProgramText &t) {
     token->type = TokenType::OpRem;
     t.advance_char();
     break;
+  case '!': {
+    token->type = TokenType::OpNot;
+    t.advance_char();
+    break;
+  }
   case '&': {
     // Two cases here: & (binary AND), or && (logical AND).
     t.advance_char();
@@ -294,14 +303,19 @@ std::shared_ptr<Token> get_operator(ProgramText &t) {
     }
     break;
   }
+  case '^': {
+    token->type = TokenType::OpXor;
+    t.advance_char();
+    break;
+  }
   case '<': {
     // Three potential cases: < (less than), <= (less than or equal to), or <>
     // (not equals).
     t.advance_char();
-    if (t.peek() == '=') {
+    if (next_char == '=') {
       token->type = TokenType::OpLe;
       t.advance_char();
-    } else if (t.peek() == '>') {
+    } else if (next_char == '>') {
       token->type = TokenType::OpNe;
       t.advance_char();
     } else {
@@ -399,6 +413,12 @@ std::deque<std::shared_ptr<Token>> tokenize(ProgramText &t) {
     // Skip whitespace characters
     t.skip_whitespace();
   }
+  std::shared_ptr<Token> eof_token = std::make_shared<Token>();
+  eof_token->line_num = t.line_num;
+  eof_token->col_num = t.col_num;
+  eof_token->stream = &t.stream;
+  eof_token->type = TokenType::Eof;
+  tokens.push_back(eof_token);
 
   return tokens;
 }

@@ -43,7 +43,8 @@ void err_token(std::shared_ptr<Token> token, std::string message) {
   }
 
   // Underline the offending token
-  for (int i = 0; i < std::max(1, static_cast<int>(token->string_value.length())); i++) {
+  for (int i = 0;
+       i < std::max(1, static_cast<int>(token->string_value.length())); i++) {
     std::cout << "^";
   }
 

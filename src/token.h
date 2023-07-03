@@ -4,7 +4,11 @@
 #include <string>
 
 enum class TokenType : unsigned char {
+  Eof,
+
   Identifier,
+  TypeName,
+
   KeywordIf,
   KeywordElse,
   KeywordWhile,
