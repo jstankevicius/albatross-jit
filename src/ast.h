@@ -189,24 +189,24 @@ using StmtOps =
 using ExpOps = std::variant<int, std::string, ExpNode::BinOps, ExpNode::UnOps,
                             ExpNode::CallOps, ExpNode::VarOps>;
 
-ExpNode_p exp_bp(std::deque<std::shared_ptr<Token>> &tokens, int bp);
-ExpNode_p parse_expression(std::deque<std::shared_ptr<Token>> &tokens);
-ExpNode_p new_int_node(int ival);
-ExpNode_p new_unop_node(Operator op, ExpNode_p e);
-ExpNode_p new_binop_node(Operator op, ExpNode_p lhs, ExpNode_p rhs);
-ExpNode_p new_var_node(std::string name);
-ExpNode_p new_str_node(std::string str);
-ExpNode_p new_call_expr(std::string name, std::vector<ExpNode_p> &args);
+ExpNode_p new_int_exp_node(int ival);
+ExpNode_p new_unop_exp_node(Operator op, ExpNode_p e);
+ExpNode_p new_binop_exp_node(Operator op, ExpNode_p lhs, ExpNode_p rhs);
+ExpNode_p new_var_exp_node(std::string name);
+ExpNode_p new_str_exp_node(std::string str);
+ExpNode_p new_call_exp_node(std::string name, std::vector<ExpNode_p> &args);
 
-StmtNode_p new_assign_node(ExpNode_p lhs, ExpNode_p rhs);
-StmtNode_p new_if_node(ExpNode_p cond, std::vector<StmtNode_p> &then_stmts,
-                       std::vector<StmtNode_p> &else_stmts);
-StmtNode_p new_while_node(ExpNode_p cond, std::vector<StmtNode_p> &body_stmts,
-                          std::vector<StmtNode_p> &otherwise_stmts);
-StmtNode_p new_return_node(ExpNode_p ret_exp);
-StmtNode_p new_repeat_node(ExpNode_p cond, std::vector<StmtNode_p> &body_stmts);
-StmtNode_p new_fundec_node(std::string fun_name, Type ret_type,
-                           std::vector<TypeNode> &params,
-                           std::vector<StmtNode_p> body);
-StmtNode_p new_vardec_node(std::string name, Type type, ExpNode_p rhs);
-StmtNode_p new_call_node(std::string name, std::vector<ExpNode_p> args);
+StmtNode_p new_assign_stmt_node(ExpNode_p lhs, ExpNode_p rhs);
+StmtNode_p new_if_stmt_node(ExpNode_p cond, std::vector<StmtNode_p> &then_stmts,
+                            std::vector<StmtNode_p> &else_stmts);
+StmtNode_p new_while_stmt_node(ExpNode_p cond,
+                               std::vector<StmtNode_p> &body_stmts,
+                               std::vector<StmtNode_p> &otherwise_stmts);
+StmtNode_p new_return_stmt_node(ExpNode_p ret_exp);
+StmtNode_p new_repeat_stmt_node(ExpNode_p cond,
+                                std::vector<StmtNode_p> &body_stmts);
+StmtNode_p new_fundec_stmt_node(std::string fun_name, Type ret_type,
+                                std::vector<TypeNode> &params,
+                                std::vector<StmtNode_p> body);
+StmtNode_p new_vardecl_stmt_node(std::string name, Type type, ExpNode_p rhs);
+StmtNode_p new_call_stmt_node(std::string name, std::vector<ExpNode_p> args);

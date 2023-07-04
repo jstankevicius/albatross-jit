@@ -11,7 +11,10 @@ std::shared_ptr<Token>
 expect_any_token(std::deque<std::shared_ptr<Token>> &tokens);
 std::shared_ptr<Token>
 expect_token_type(TokenType type, std::deque<std::shared_ptr<Token>> &tokens);
-ExpNode_p parse_int_expr(std::deque<std::shared_ptr<Token>> &tokens);
+ExpNode_p parse_int_exp(std::deque<std::shared_ptr<Token>> &tokens);
+
+ExpNode_p exp_bp(std::deque<std::shared_ptr<Token>> &tokens, int bp);
+ExpNode_p parse_exp(std::deque<std::shared_ptr<Token>> &tokens);
 
 std::shared_ptr<StmtNode>
 parse_stmt(std::deque<std::shared_ptr<Token>> &tokens);
