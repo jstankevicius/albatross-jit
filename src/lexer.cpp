@@ -285,10 +285,10 @@ std::shared_ptr<Token> get_operator(ProgramText &t) {
     // Two cases here: & (binary AND), or && (logical AND).
     t.advance_char();
     if (next_char == '&') {
-      token->type = TokenType::OpBand;
+      token->type = TokenType::OpAnd;
       t.advance_char();
     } else {
-      token->type = TokenType::OpAnd;
+      token->type = TokenType::OpBand;
     }
     break;
   }
@@ -296,10 +296,10 @@ std::shared_ptr<Token> get_operator(ProgramText &t) {
     // Two cases here: | (binary OR), or || (logical OR).
     t.advance_char();
     if (next_char == '|') {
-      token->type = TokenType::OpBor;
+      token->type = TokenType::OpOr;
       t.advance_char();
     } else {
-      token->type = TokenType::OpOr;
+      token->type = TokenType::OpBor;
     }
     break;
   }
