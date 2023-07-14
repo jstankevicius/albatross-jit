@@ -5,6 +5,8 @@
 
 #include "lexer.h"
 #include "parser.h"
+#include "symres.h"
+#include "typecheck.h"
 
 int main(int argc, char *argv[]) {
   if (argc < 2) {
@@ -27,5 +29,10 @@ int main(int argc, char *argv[]) {
   ProgramText text(content);
 
   auto tokens = tokenize(text);
-  parse_stmts(tokens);
+  auto stmts = parse_stmts(tokens);
+
+  SymbolTable st;
+  st.enter_scope();
+  resolve_stmts(stmts, st);
+  typecheck_stmts(stmts);
 }

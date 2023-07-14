@@ -113,7 +113,7 @@ std::shared_ptr<Token> get_symbol(ProgramText &t) {
   // returns -1 once we've reached the end of the stream.
   // TODO: This doesn't support underscores
   while (!is_whitespace(t.cur_char()) && !t.done() &&
-         is_alphanumeric(t.cur_char())) {
+         (is_alphanumeric(t.cur_char()) || t.cur_char() == '_')) {
     str += t.cur_char();
     t.advance_char();
   }

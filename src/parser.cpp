@@ -283,6 +283,7 @@ ExpNode_p parse_exp(std::deque<std::shared_ptr<Token>> &tokens) {
 }
 
 StmtNode_p parse_vardecl_stmt(std::deque<std::shared_ptr<Token>> &tokens) {
+  printf("Parsing vardecl\n");
   expect_token_type(TokenType::KeywordVar, tokens);
   auto name = expect_token_type(TokenType::Identifier, tokens)->string_value;
   auto type =
@@ -417,7 +418,6 @@ StmtNode_p parse_fundecl_stmt(std::deque<std::shared_ptr<Token>> &tokens) {
   }
   expect_token_type(TokenType::Rcurl, tokens);
 
-  printf("Done parsing function\n");
   return new_fundec_stmt_node(fun_name, type, params, body_stmts);
 }
 

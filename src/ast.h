@@ -10,6 +10,7 @@
 
 typedef enum {
   Invalid,
+
   // Infix operators
   OpOr,
   OpAnd,
@@ -43,6 +44,28 @@ typedef struct TypeNode {
   Type type;
 } TypeNode;
 
+typedef struct VarInfo {
+  Type var_type;
+
+  // This variable's DeBruijn index. Denotes a generic "memory location"
+  // where that variable may be stored. Initialized during symbol resolution.
+  // Example:
+  // var a int := 1; <-- DBI of 0
+  // if (a < 2) {
+  //   var b int := 123; <-- DBI of 1
+  // }
+  // var c int := 4; <-- DBI of 1; b has gone out of scope, so its memory
+  //                     location may be reused.
+  int var_idx_db;
+} VarInfo;
+
+typedef struct FunInfo {
+  Type ret_type;
+  int var_idx_db;
+
+  std::vector<TypeNode> params;
+} FunInfo;
+
 typedef struct ExpNode {
 
   // The first three are terminals, the last two are nonterminals.
@@ -62,72 +85,44 @@ typedef struct ExpNode {
   typedef struct {
     std::string name;
     std::vector<std::shared_ptr<ExpNode>> args;
+    std::optional<FunInfo> fun_info;
   } CallOps;
 
   typedef struct {
     std::string name;
+    std::optional<VarInfo> var_info;
   } VarOps;
 
-  // TODO: Add IntrinsicOps
+  std::shared_ptr<Token> token;
 
+  // TODO: Add IntrinsicOps
   std::variant<int, std::string, BinOps, UnOps, CallOps, VarOps> data;
 
-  std::string to_str() {
-    std::string op_str = "";
-    switch (kind) {
-    case IntExp:
-      return "(" + std::to_string(std::get<int>(data)) + ")";
-    case BinopExp: {
-      BinOps ops = std::get<BinOps>(data);
-      switch (ops.op) {
-      case Operator::OpPlus: {
-        op_str = "+";
-        break;
-      }
-      case Operator::OpTimes: {
-        op_str = "*";
-        break;
-      }
-      case Operator::OpDiv: {
-        op_str = "/";
-        break;
-      }
-      default: {
-        printf("to_str(): found unrecognized binary operator\n");
-        exit(-1);
-      }
-      }
-      return "(" + ops.e1->to_str() + op_str + ops.e2->to_str() + ")";
-    }
-    case UnopExp: {
-      UnOps ops = std::get<UnOps>(data);
-      switch (ops.op) {
-      case Operator::OpMinus: {
-        op_str = "-";
-        break;
-      }
-      case Operator::OpNot: {
-        op_str = "!";
-        break;
-      }
-      default: {
-        printf("to_str(): found unrecognized unary operator\n");
-        exit(-1);
-      }
-      }
-      return "(" + op_str + " " + ops.e->to_str() + ")";
-    }
-    default: {
-      printf("ERROR in to_str(): unhandled case\n");
-      exit(-1);
-    };
-    }
-  }
+  inline int int_ops() { return std::get<int>(data); }
+
+  inline std::string &str_ops() { return std::get<std::string>(data); }
+
+  inline BinOps &bin_ops() { return std::get<BinOps>(data); }
+
+  inline UnOps &un_ops() { return std::get<UnOps>(data); }
+
+  inline CallOps &call_ops() { return std::get<CallOps>(data); }
+
+  inline VarOps &var_ops() { return std::get<VarOps>(data); }
 
 } ExpNode;
 
 typedef struct StmtNode {
-  enum { AssignStmt, IfStmt, WhileStmt, RepeatStmt, CallStmt, RetStmt } kind;
+  enum StmtKind {
+    AssignStmt,
+    VardeclStmt,
+    IfStmt,
+    WhileStmt,
+    RepeatStmt,
+    CallStmt,
+    RetStmt,
+    FundecStmt
+  } kind;
 
   typedef struct {
     std::shared_ptr<ExpNode> lhs;
@@ -138,7 +133,7 @@ typedef struct StmtNode {
     std::string lhs;
     Type type;
     std::shared_ptr<ExpNode> rhs;
-  } VardecOps;
+  } VardeclOps;
 
   typedef struct {
     std::shared_ptr<ExpNode> cond;
@@ -160,6 +155,7 @@ typedef struct StmtNode {
   typedef struct {
     std::string name;
     std::vector<std::shared_ptr<ExpNode>> args;
+    std::optional<FunInfo> fun_info;
   } CallOps;
 
   typedef struct {
@@ -175,15 +171,24 @@ typedef struct StmtNode {
 
   // TODO: Add IntrinsicStmt
 
-  std::variant<VardecOps, AssignOps, IfOps, WhileOps, RepeatOps, CallOps,
+  std::variant<VardeclOps, AssignOps, IfOps, WhileOps, RepeatOps, CallOps,
                FundecOps, RetOps>
       data;
+
+  inline AssignOps &assign_ops() { return std::get<AssignOps>(data); }
+  inline VardeclOps &vardecl_ops() { return std::get<VardeclOps>(data); }
+  inline IfOps &if_ops() { return std::get<IfOps>(data); }
+  inline WhileOps &while_ops() { return std::get<WhileOps>(data); }
+  inline RepeatOps &repeat_ops() { return std::get<RepeatOps>(data); }
+  inline CallOps &call_ops() { return std::get<CallOps>(data); }
+  inline FundecOps &fundec_ops() { return std::get<FundecOps>(data); }
+  inline RetOps &ret_ops() { return std::get<RetOps>(data); }
 } StmtNode;
 
 using StmtNode_p = std::shared_ptr<StmtNode>;
 using ExpNode_p = std::shared_ptr<ExpNode>;
 using StmtOps =
-    std::variant<StmtNode::VardecOps, StmtNode::AssignOps, StmtNode::IfOps,
+    std::variant<StmtNode::VardeclOps, StmtNode::AssignOps, StmtNode::IfOps,
                  StmtNode::WhileOps, StmtNode::RepeatOps, StmtNode::CallOps,
                  StmtNode::FundecOps, StmtNode::RetOps>;
 using ExpOps = std::variant<int, std::string, ExpNode::BinOps, ExpNode::UnOps,
