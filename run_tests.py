@@ -71,7 +71,7 @@ def main():
 
         for test_subgroup in sorted(os.listdir(test_dir)):
             subgroup_path = f"{test_dir}/{test_subgroup}/"
-            print(subgroup_path)
+            print(f"\033[1m{subgroup_path}\033[0")
 
             input_files = sorted(os.listdir(subgroup_path))
 
@@ -102,6 +102,8 @@ def main():
                         print("\033[1;31m FAILED:\033[0m", input_path)
                         # print(result.stdout.decode("utf-8"))
                         # print(result.stderr.decode("utf-8"))
+
+            print(f"\033[1m tests passed: {n_passed}/{n_group_tests}\033[0m")
     subprocess.run(["mv", _MAIN_FILE + ".original", _MAIN_FILE])
 
 if __name__ == "__main__":
