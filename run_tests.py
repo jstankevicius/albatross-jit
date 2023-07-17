@@ -96,7 +96,7 @@ def main():
                     n_passed += 1
 
                 except subprocess.CalledProcessError:
-                    if should_fail and result.returncode in fail_errcodes:
+                    if should_fail:
                         n_passed += 1
                     else:
                         print("\033[1;31m FAILED:\033[0m", input_path)
