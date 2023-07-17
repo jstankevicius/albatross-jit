@@ -4,6 +4,7 @@
 #include <string>
 #include <vector>
 
+#include "error.h"
 #include "lexer.h"
 #include "parser.h"
 #include "symres.h"
@@ -13,7 +14,6 @@
 #define COMPILE_STAGE_PARSER
 #define COMPILE_STAGE_SYMBOL_RESOLVER
 #define COMPILE_STAGE_TYPE_CHECKER
-
 
 int main(int argc, char *argv[]) {
   if (argc < 2) {
@@ -33,23 +33,31 @@ int main(int argc, char *argv[]) {
   std::string content((std::istreambuf_iterator<char>(file)),
                       (std::istreambuf_iterator<char>()));
 
-#ifdef COMPILE_STAGE_LEXER
-  ProgramText text(content);
+  try {
 
-  auto tokens = tokenize(text);
+#ifdef COMPILE_STAGE_LEXER
+    ProgramText text(content);
+
+    auto tokens = tokenize(text);
 
 #ifdef COMPILE_STAGE_PARSER
-  auto stmts = parse_stmts(tokens);
+    auto stmts = parse_stmts(tokens);
 
 #ifdef COMPILE_STAGE_SYMBOL_RESOLVER
-  SymbolTable st;
-  st.enter_scope();
-  resolve_stmts(stmts, st);
+    SymbolTable st;
+    st.enter_scope();
+    printf("resolving stmts\n");
+    resolve_stmts(stmts, st);
+    printf("done resolving statements :)\n");
 
 #ifdef COMPILE_STAGE_TYPE_CHECKER
-  typecheck_stmts(stmts);
+    typecheck_stmts(stmts);
 #endif
 #endif
 #endif
 #endif
+  } catch (AlbatrossError &e) {
+    print_err(content, e.line_num(), e.col_num(), e.what());
+    exit(1);
+  }
 }

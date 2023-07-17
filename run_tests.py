@@ -101,7 +101,7 @@ def main():
                     else:
                         print("\033[1;31m FAILED:\033[0m", input_path)
                         # print(result.stdout.decode("utf-8"))
-                        # print(result.stderr.decode("utf-8"))
+                        print(result.stderr.decode("utf-8"))
 
             print(f"\033[1m tests passed: {n_passed}/{n_group_tests}\033[0m")
     subprocess.run(["mv", _MAIN_FILE + ".original", _MAIN_FILE])

@@ -151,7 +151,8 @@ std::shared_ptr<Token> get_numeric_literal(ProgramText &t) {
   }
 
   else if (t.cur_char() == '.' && !is_numeric(t.peek())) {
-    err_token(token, "decimals in the form of 'x.' are not allowed");
+    throw AlbatrossError("decimals in the form of 'x.' are not allowed", t.line_num,
+                     t.col_num);
   }
 
   // Add the decimal part, if it exists.
@@ -203,8 +204,7 @@ std::shared_ptr<Token> get_punctuation(ProgramText &t) {
     token->type = TokenType::Comma;
     break;
   default:
-    err_token(token, "unrecognized character");
-    break;
+    throw AlbatrossError("unrecognized character", t.line_num, t.col_num);
   }
 
   t.advance_char();
@@ -235,7 +235,7 @@ std::shared_ptr<Token> get_string_literal(ProgramText &t) {
 
   else {
     // No matching quote
-    err_token(token, "no matching quote");
+    throw AlbatrossError("no matching quote", t.line_num, t.col_num);
   }
 
   token->type = TokenType::StrLiteral;
@@ -341,7 +341,7 @@ std::shared_ptr<Token> get_operator(ProgramText &t) {
       t.advance_char();
       break;
     } else {
-      err_token(token, "Unrecognized operator");
+      throw AlbatrossError("unrecognized character", t.line_num, t.col_num);
     }
   }
   case ':': {
@@ -351,11 +351,11 @@ std::shared_ptr<Token> get_operator(ProgramText &t) {
       t.advance_char();
       break;
     } else {
-      err_token(token, "Unrecognized operator");
+      throw AlbatrossError("unrecognized character", t.line_num, t.col_num);
     }
   }
   default: {
-    err_token(token, "Unrecognized operator");
+    throw AlbatrossError("unrecognized character", t.line_num, t.col_num);
   }
   }
 

@@ -15,6 +15,8 @@ std::string type_to_str(Type t) {
 void resolve_exp(ExpNode_p exp, SymbolTable &st) {
   switch (exp->kind) {
   case ExpNode::IntExp:
+    printf("resolving an int\n");
+    return;
   case ExpNode::StringExp:
     return;
   case ExpNode::VarExp: {
@@ -68,6 +70,7 @@ void resolve_exp(ExpNode_p exp, SymbolTable &st) {
 }
 
 inline void resolve_stmt(StmtNode_p stmt, SymbolTable &st) {
+  printf("resolving stmt %d\n", stmt->kind);
   switch (stmt->kind) {
   case StmtNode::VardeclStmt: {
     auto &ops = stmt->vardecl_ops();
@@ -174,8 +177,8 @@ inline void resolve_stmt(StmtNode_p stmt, SymbolTable &st) {
 }
 
 void resolve_stmts(std::vector<StmtNode_p> &stmts, SymbolTable &st) {
-  printf("Resolving statements\n");
   for (auto stmt : stmts) {
+    printf("%lu\n", stmt->data.index());
     resolve_stmt(stmt, st);
   }
 }

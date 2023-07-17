@@ -24,24 +24,6 @@ Type str_to_type(std::string type_str) {
   }
 }
 
-// Expect the next token in the stream to have a particular string as its
-// contents. If not, fail with an error on the token.
-void expect_token_string(std::string str,
-                         std::deque<std::shared_ptr<Token>> &tokens) {
-  if (tokens.size() == 0) {
-    printf("Unexpected EOF at end of file\n");
-    exit(-1);
-  }
-
-  auto token = tokens.front();
-  if (token->string_value != str) {
-    err_token(token, "syntax error: expected '" + str + "', but got '" +
-                         token->string_value + "' ");
-  }
-
-  tokens.pop_front();
-}
-
 std::shared_ptr<Token>
 expect_any_token(std::deque<std::shared_ptr<Token>> &tokens) {
   if (tokens.size() == 0) {
@@ -65,8 +47,7 @@ expect_token_type(TokenType type, std::deque<std::shared_ptr<Token>> &tokens) {
   auto token = tokens.front();
   if (token->type != type) {
     // TODO: better errors
-    err_token(token, "syntax error: unexpected token type; got " +
-                         token->string_value);
+    throw AlbatrossError("syntax error: unexpected token '" + token->string_value + "'", token->line_num, token->col_num);
   }
 
   tokens.pop_front();
@@ -235,7 +216,7 @@ ExpNode_p exp_bp(std::deque<std::shared_ptr<Token>> &tokens, int min_bp) {
   }
 
   default:
-    err_token(front, "Expected literal, identifier, paren, or prefix operator");
+    throw AlbatrossError("Expected an expression", front->line_num, front->col_num);
   }
 
   while (1) {
@@ -504,7 +485,7 @@ StmtNode_p parse_stmt(std::deque<std::shared_ptr<Token>> &tokens) {
   case TokenType::KeywordFun:
     return parse_fundecl_stmt(tokens);
   default:
-    err_token(front, "expected a statement");
+    throw AlbatrossError("expected a statement", front->line_num, front->col_num);
   }
 
   return p;

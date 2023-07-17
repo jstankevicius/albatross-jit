@@ -100,7 +100,7 @@ typedef struct ExpNode {
   // TODO: Add IntrinsicOps
   std::variant<int, std::string, BinOps, UnOps, CallOps, VarOps> data;
 
-  inline int int_ops() { return std::get<int>(data); }
+  inline int int_ops() { printf("intops\n"); return std::get<int>(data); }
 
   inline std::string &str_ops() { return std::get<std::string>(data); }
 
@@ -125,8 +125,8 @@ typedef struct StmtNode {
     WhileStmt,
     RepeatStmt,
     CallStmt,
-    RetStmt,
-    FundecStmt
+    FundecStmt,
+    RetStmt
   } kind;
 
   typedef struct {
