@@ -1,0 +1,9 @@
+fun f1 int (a1 int) {
+  return 1;
+}
+
+fun f2 int (a1 int, a2 string) {
+  return 20;
+}
+
+return f2(10,"hello");

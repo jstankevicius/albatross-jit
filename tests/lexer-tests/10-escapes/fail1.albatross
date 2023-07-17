@@ -1,0 +1,2 @@
+# not everything can be escaped
+"this is a bad string \a"

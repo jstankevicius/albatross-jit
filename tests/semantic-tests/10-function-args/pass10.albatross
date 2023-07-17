@@ -1,0 +1,6 @@
+fun f int (argument int) {
+  argument := 10;
+  return argument;
+}
+
+return f(473);

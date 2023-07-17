@@ -1,0 +1,6 @@
+fun f int (argument int) {
+  return 0;
+}
+
+f("string");
+return;

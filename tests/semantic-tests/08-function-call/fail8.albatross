@@ -1,0 +1,9 @@
+fun f int() {
+  return f2();
+}
+
+fun f2 int() {
+  return f();
+}
+
+return f();

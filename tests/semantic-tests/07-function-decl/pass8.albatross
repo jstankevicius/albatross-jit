@@ -1,0 +1,23 @@
+var f int := 0;
+var f1 int := 0;
+var f2 int := 0;
+var f3 int := 0;
+var f4 int := 0;
+var f5 int := 0;
+var f6 int := 0;
+var f7 int := 0;
+var f8 int := 0;
+var f9 int := 0;
+
+fun f int ()  { return 0; }
+fun f1 int () { return 1; }
+fun f2 int () { return 2; }
+fun f3 int () { return 3; }
+fun f4 int () { return 4; }
+fun f5 int () { return 5; }
+fun f6 int () { return 6; }
+fun f7 int () { return 7; }
+fun f8 int () { return 8; }
+fun f9 int () { return 9; }
+
+return 2;

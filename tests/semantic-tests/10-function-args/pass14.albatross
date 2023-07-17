@@ -1,0 +1,6 @@
+fun f1 int (a1 int) {
+  var a2 int := a1;
+  return a2;
+}
+
+return f1(473);

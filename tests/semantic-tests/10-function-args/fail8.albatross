@@ -1,0 +1,7 @@
+var argument int := 0;
+
+fun f1 int (argument int) {
+  return 0;
+}
+
+return f1(0);

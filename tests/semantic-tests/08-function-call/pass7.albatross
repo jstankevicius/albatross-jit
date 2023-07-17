@@ -1,0 +1,13 @@
+var i int := 0;
+var s string := "";
+
+fun fi int () {
+  return i;
+}
+
+fun fv void () {
+  i := 10;
+}
+
+fv();
+return fi();

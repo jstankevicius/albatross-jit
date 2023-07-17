@@ -1,0 +1,12 @@
+var i1 int := 400;
+var s1 string := "hello";
+var i2 int := i1 + 70;
+var s2 string := "world";
+var i3 int := i2 + 3;
+var s3 string := s2;
+var i4 int := i1 + i2 + i3;
+
+s1 := s2;
+s2 := "";
+
+return i4;

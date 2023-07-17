@@ -1,0 +1,6 @@
+fun f1 int (argument int) {
+  var argument int := 0;
+  return argument;
+}
+
+return f1(473);

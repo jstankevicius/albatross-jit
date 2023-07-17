@@ -1,0 +1,9 @@
+fun f int () {
+  return 1;
+}
+
+fun f int () {
+  return 1;
+}
+
+return 2;

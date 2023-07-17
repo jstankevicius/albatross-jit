@@ -1,0 +1,12 @@
+var global int := 400;
+
+fun f1 int () {
+  var local int := 70;
+  return 0;
+}
+
+fun f2 int () {
+  return local + global;
+}
+
+return f1() + f2();

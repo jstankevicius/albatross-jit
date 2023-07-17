@@ -1,0 +1,29 @@
+fun f1 int (a1 int) {
+  return 1;
+}
+
+fun f2 int (a1 int, a2 string) {
+  return 20;
+}
+
+fun f3 int (a1 int, a2 string, a3 int, a4 string) {
+  return 300;
+}
+
+fun f4 int (a1 int, a2 string, a3 int, a4 string, a5 int) {
+  return 4000;
+}
+
+fun f5 int (a1 int, a2 string, a3 int, a4 string, a5 int, a6 string) {
+  return 50000;
+}
+
+fun f6 int (a1 int, a2 string, a3 int, a4 string, a5 int, a6 string, a7 int) {
+  return 6000000;
+}
+
+fun f7 int (a1 int, a2 string, a3 int, a4 string, a5 int, a6 string, a7 int, a8 string) {
+  return 7;
+}
+
+return 2;

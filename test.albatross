@@ -1,20 +1,5 @@
-var result int := 0;
-
-fun factorial int (i int) {
-  if (i == 0) { return 1; }
-  else {
-    result := i * factorial(i-1);
-    return result;
-  }
+fun my_fun int(arg int) {
+    return arg;
 }
 
-repeat(10) {
-    factorial(10);
-    factorial(5);
-    printint(result);
-    printstring(" ");
-    factorial(10);
-    printint(result);
-    printstring(" ");
-}
-return 0;
+var m int := my_fun("hello");

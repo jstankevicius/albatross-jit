@@ -1,0 +1,4 @@
+# you do need to escape SOMETHING
+"this is not OK \ "
+# and strings need to be well terminated
+"this is also not OK \"

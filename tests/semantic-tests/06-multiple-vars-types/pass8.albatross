@@ -1,0 +1,15 @@
+var i1 int := (0);
+var s1 string := ("hello");
+var i2 int := ((0) + 0);
+var s2 string := ("world");
+var i3 int := (0);
+var s3 string := ((("cs473")));
+var i4 int := (0);
+
+s1 := s2;
+s2 := "";
+
+i1 := 400;
+i2 := (((i2 + 70) * (10)) / i3) * (i1);
+i3 := i3 + 3;
+return i3 + i4;

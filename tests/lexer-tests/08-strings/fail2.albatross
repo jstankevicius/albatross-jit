@@ -1,0 +1,3 @@
+# strings should end in the same line
+"this string should end
+in the same line"

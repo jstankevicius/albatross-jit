@@ -1,0 +1,6 @@
+var v1 int := 400;
+var v1 int := 70;
+var v2 int := 4;
+var v2 int := 0;
+
+return v1 + v2;

@@ -1,0 +1,8 @@
+var global int := 400;
+
+fun f1 int () {
+  return undefinedVariable;
+}
+
+f1();
+return 0;

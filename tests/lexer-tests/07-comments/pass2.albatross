@@ -1,0 +1,3 @@
+everything in a comment is ignored # even the comment # symbol
+# even bad names 0thisisabadname 1lakjsd
+# even bad constants 0x_ _ 0x_473 0xCS473

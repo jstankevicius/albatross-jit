@@ -1,0 +1,5 @@
+Function declared "f" returns int
+	Argument "argument" type int position 0
+Argument/local written "argument" type int frame position 0
+Argument/local read "argument" type int frame position 0
+Function called "f" returns int

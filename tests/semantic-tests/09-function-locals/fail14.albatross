@@ -1,0 +1,9 @@
+var global int := 400;
+
+fun f int () {
+  var local int := 70;
+  return local+global;
+}
+
+local := 73;
+return f() + global;

@@ -1,0 +1,7 @@
+fun f1 int () {
+  var local int := 70;
+  global := 400;
+  return 0;
+}
+
+return f1();

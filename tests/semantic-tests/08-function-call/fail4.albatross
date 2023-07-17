@@ -1,0 +1,5 @@
+fun f void () {
+  return "";
+}
+
+return f() + 1;

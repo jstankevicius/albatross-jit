@@ -1,0 +1,6 @@
+Function declared "f1" returns int
+	Argument "a1" type int position 0
+Function declared "f2" returns int
+	Argument "a1" type int position 0
+	Argument "a2" type string position 1
+Function called "f2" returns int

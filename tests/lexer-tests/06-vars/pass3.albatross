@@ -1,0 +1,22 @@
+void function(char argument) {
+  string ret;
+  if ( argument == 10)
+    return 10;
+  else
+    return function(argument-1);
+}
+
+void anotherFunction() {
+  int[] argument;
+  while (1) { return; }
+}
+
+int oneMoreFunction() {
+  while (0) { return 01; } else { return 10; }
+}
+
+int result := 0;
+
+if (1) { result := 1; }
+
+if (0) { result := 10; } else { result := 1000; }

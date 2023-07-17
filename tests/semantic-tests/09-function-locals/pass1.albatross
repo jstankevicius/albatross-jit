@@ -1,0 +1,6 @@
+fun f int () {
+  var local int := 10;
+  return local;
+}
+
+return f();

@@ -1,0 +1,6 @@
+fun f2 void () {
+  return;
+}
+
+f2();
+return 473;

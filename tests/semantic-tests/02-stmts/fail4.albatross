@@ -1,0 +1,1 @@
+while ("string") { return 0; }

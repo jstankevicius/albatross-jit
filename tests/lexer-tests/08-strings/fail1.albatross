@@ -1,0 +1,4 @@
+# strings should be terminated
+"this string is not terminated
+
+if (1) return 10;

@@ -1,0 +1,3 @@
+var variable string := "hello";
+
+return 0;

@@ -1,0 +1,32 @@
+Variable declared "s" type string
+Function declared "f7" returns int
+	Argument "a1" type int position 0
+	Argument "a2" type string position 1
+	Argument "a3" type int position 2
+	Argument "a4" type string position 3
+	Argument "a5" type int position 4
+	Argument "a6" type string position 5
+	Argument "a7" type int position 6
+	Argument "a8" type string position 7
+	Local variable "l1" type int position 8
+Argument/local read "a1" type int frame position 0
+	Local variable "l2" type string position 9
+Variable read "s" type string
+	Local variable "l3" type int position 10
+Argument/local read "l1" type int frame position 8
+Argument/local read "a3" type int frame position 2
+	Local variable "l4" type string position 11
+Argument/local read "a2" type string frame position 1
+	Local variable "l5" type int position 12
+Argument/local read "a3" type int frame position 2
+Argument/local read "a5" type int frame position 4
+Argument/local read "l3" type int frame position 10
+	Local variable "l6" type string position 13
+Argument/local read "a4" type string frame position 3
+	Local variable "l7" type int position 14
+Argument/local read "a5" type int frame position 4
+Argument/local read "a7" type int frame position 6
+	Local variable "l8" type string position 15
+Variable read "s" type string
+Argument/local read "a7" type int frame position 6
+Function called "f7" returns int

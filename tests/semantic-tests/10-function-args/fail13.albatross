@@ -1,0 +1,15 @@
+var s string := "";
+
+fun f7 int (a1 int, a2 string, a3 int, a4 string, a5 int, a6 string, a7 int, a8 string) {
+  var l1 int := a1;
+  var l2 string := s;
+  var l3 int := l1 + a3;
+  var l4 string := a2;
+  var l5 int := a3 + a5 + l3;
+  var l6 string := a4;
+  var l7 int := a5 + a7;
+  var l8 string := s;
+  return a7;
+}
+
+return f7(400, "CS", 70, "UIC", 4, "Chicago", 2022);

@@ -1,7 +1,0 @@
-var global int := 10;
-
-fun function int () {
-  return global+1*2;
-}
-
-return global+3;

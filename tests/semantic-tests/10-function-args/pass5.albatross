@@ -1,0 +1,7 @@
+fun f1 int (argument int) {
+  var v int := 400;
+
+  return argument + v;
+}
+
+return f1(73);

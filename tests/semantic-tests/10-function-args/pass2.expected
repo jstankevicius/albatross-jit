@@ -1,0 +1,4 @@
+Variable declared "global" type int
+Function declared "f" returns int
+	Argument "argument" type int position 0
+Function called "f" returns int

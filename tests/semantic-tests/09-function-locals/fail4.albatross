@@ -1,0 +1,8 @@
+var global int := 400;
+
+fun f1 int () {
+  var local string := 70;
+  return 0;
+}
+
+return f1();

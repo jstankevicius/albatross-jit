@@ -1,0 +1,5 @@
+fun f string () {
+  return "CS473";
+}
+
+return 0;

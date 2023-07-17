@@ -1,0 +1,5 @@
+Variable declared "v1" type string
+Variable declared "v2" type string
+Variable read "v2" type string
+Variable written "v1" type string
+Variable written "v2" type string

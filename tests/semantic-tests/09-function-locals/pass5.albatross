@@ -1,0 +1,24 @@
+var i1 int := 0;
+var s1 string := "hello";
+var i2 int := 0;
+var s2 string := "world";
+var i3 int := 0;
+var s3 string := "cs473";
+var i4 int := 0;
+
+fun f int () {
+    var f1 int := 0;
+    var f2 int := 0;
+    var f3 int := 0;
+    var f4 int := 0;
+
+    s1 := s2;
+    s2 := "";
+
+    f1 := 400;
+    f2 := f2 + 70;
+    f3 := f3 + 3;
+    return f4 + i1;
+}
+
+return i3 + i4;

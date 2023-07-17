@@ -1,0 +1,4 @@
+repeat (1&2) { return 3; }
+if (4&&5) { return 6||7; }
+while (8<9) { return 10>11; }
+return 12^13;

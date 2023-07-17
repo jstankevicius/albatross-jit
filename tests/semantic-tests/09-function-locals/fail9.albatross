@@ -1,0 +1,10 @@
+var global int := 400;
+
+fun f1 int () {
+  var variable string := "";
+
+  return undefinedVariable;
+}
+
+f1();
+return 0;

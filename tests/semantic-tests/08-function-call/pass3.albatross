@@ -1,0 +1,12 @@
+var f1 int := 0;
+var f2 int := 0;
+
+fun f1 int () {
+  return 1;
+}
+
+fun f2 int () {
+  return 1;
+}
+
+return f1()+f1+f2()+f2;

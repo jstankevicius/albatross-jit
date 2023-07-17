@@ -1,0 +1,8 @@
+var global string := "473";
+
+fun f int (argument int) {
+  return 0;
+}
+
+f(global);
+return 0;

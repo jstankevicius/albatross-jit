@@ -1,0 +1,8 @@
+var global int := 400;
+
+fun f1 int () {
+  local := 400;
+  return 0;
+}
+
+return f1();

@@ -1,0 +1,8 @@
+Variable declared "f1" type int
+Variable declared "f2" type int
+Function declared "f1" returns int
+Function declared "f2" returns int
+Function called "f1" returns int
+Variable read "f1" type int
+Function called "f2" returns int
+Variable read "f2" type int

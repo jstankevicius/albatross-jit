@@ -1,0 +1,9 @@
+fun f1 int () {
+  return 1;
+}
+
+fun f2 void () {
+  return;
+}
+
+return 2;

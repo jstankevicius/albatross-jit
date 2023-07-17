@@ -1,0 +1,64 @@
+var s string := "";
+
+fun f1 int (a1 int) {
+  a1 := a1;
+  return a1;
+}
+
+fun f2 int (a1 int, a2 string) {
+  a1 := a1;
+  a2 := s;
+  return a1;
+}
+
+fun f3 int (a1 int, a2 string, a3 int, a4 string) {
+  a1 := a1;
+  a2 := s;
+  a3 := a1 + a3;
+  a4 := a2;
+  return a3;
+}
+
+fun f4 int (a1 int, a2 string, a3 int, a4 string, a5 int) {
+  a1 := a1;
+  a2 := s;
+  a3 := a1 + a3;
+  a4 := a2;
+  a5 := a3 + a5;
+  return a5;
+}
+
+fun f5 int (a1 int, a2 string, a3 int, a4 string, a5 int, a6 string) {
+  a1 := a1;
+  a2 := s;
+  a3 := a1 + a3;
+  a4 := a2;
+  a5 := a3 + a5;
+  a6 := a4;
+  return a5;
+}
+
+fun f6 int (a1 int, a2 string, a3 int, a4 string, a5 int, a6 string, a7 int) {
+  a1 := a1;
+  a2 := s;
+  a3 := a1 + a3;
+  a4 := a2;
+  a5 := a3 + a5;
+  a6 := a4;
+  a7 := a5 + a7;
+  return a7;
+}
+
+fun f7 int (a1 int, a2 string, a3 int, a4 string, a5 int, a6 string, a7 int, a8 string) {
+  a1 := a1;
+  a2 := s;
+  a3 := a1 + a3;
+  a4 := a2;
+  a5 := a3 + a5;
+  a6 := a4;
+  a7 := a5 + a7;
+  a8 := s;
+  return a7;
+}
+
+return 2;

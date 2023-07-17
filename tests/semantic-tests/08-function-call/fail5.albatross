@@ -1,0 +1,16 @@
+fun fs string () {
+  return "";
+}
+
+fun fi int () {
+  return i;
+}
+
+fun fv void () {
+  i := 10;
+}
+
+fv();
+fs();
+fi();
+return fi();

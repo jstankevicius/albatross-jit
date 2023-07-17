@@ -1,0 +1,17 @@
+fun f1 int () {
+  return 1;
+}
+
+fun f3 void () {
+  return;
+}
+
+fun f2 int () {
+  return 1;
+}
+
+fun f4 void () {
+  return;
+}
+
+return 2;

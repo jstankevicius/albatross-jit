@@ -1,0 +1,4 @@
+"this \t string \t has \t tabs"
+# some strings have the escape character itself
+"like this \\ string"
+"this is not a new line \\n right it stayed in the same line"

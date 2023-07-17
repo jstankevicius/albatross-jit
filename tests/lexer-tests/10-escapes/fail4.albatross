@@ -1,0 +1,2 @@
+# and strings need to be well terminated
+"this is also not OK \"

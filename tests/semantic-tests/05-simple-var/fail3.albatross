@@ -1,0 +1,3 @@
+var variable string := "good type";
+
+return variable;

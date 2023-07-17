@@ -1,0 +1,11 @@
+fun f1 int (argument int) {
+  return 0;
+}
+
+fun f2 void() {
+  var v int := 473;
+
+  f1(v);
+}
+
+return 0;

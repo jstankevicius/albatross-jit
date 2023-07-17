@@ -1,0 +1,17 @@
+Variable declared "i1" type int
+Variable declared "s1" type string
+Variable declared "i2" type int
+Variable read "i1" type int
+Variable declared "s2" type string
+Variable declared "i3" type int
+Variable read "i2" type int
+Variable declared "s3" type string
+Variable read "s2" type string
+Variable declared "i4" type int
+Variable read "i1" type int
+Variable read "i2" type int
+Variable read "i3" type int
+Variable read "s2" type string
+Variable written "s1" type string
+Variable written "s2" type string
+Variable read "i4" type int

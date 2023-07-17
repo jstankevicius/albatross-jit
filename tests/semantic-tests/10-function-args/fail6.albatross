@@ -1,0 +1,9 @@
+fun f1 int (argument int) {
+  return 0;
+}
+
+fun f2 int() {
+  return 0;
+}
+
+return f1();

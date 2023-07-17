@@ -1,0 +1,2 @@
+#strings can have special escape chars
+"this \n string \n has \n multiple \n lines"

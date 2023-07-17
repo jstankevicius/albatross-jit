@@ -1,0 +1,2 @@
+if (0) { while(0) { return 0; } otherwise { return 0 := 0; }
+while (0) { if (0) { 0+0; } else { 0-0; } } otherwise { return 0; }

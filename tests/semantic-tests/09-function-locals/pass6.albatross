@@ -1,0 +1,9 @@
+var cs int := 400;
+
+fun f1 int () {
+  cs := 0;
+  return 0;
+}
+
+f1();
+return 0;

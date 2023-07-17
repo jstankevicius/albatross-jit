@@ -1,0 +1,2 @@
+# but escape sequences can only appear in strings
+this is invalid \# this would be a comment

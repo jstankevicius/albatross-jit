@@ -134,24 +134,33 @@ OpInfo op_binding_power(const std::deque<std::shared_ptr<Token>> &tokens,
 }
 
 ExpNode_p parse_var_exp(std::deque<std::shared_ptr<Token>> &tokens) {
-  auto name = expect_token_type(TokenType::Identifier, tokens)->string_value;
-  return new_var_exp_node(name);
+  auto tok = expect_token_type(TokenType::Identifier, tokens);
+  auto name = tok->string_value;
+  auto node = new_var_exp_node(name);
+  node->line_num = tok->line_num;
+  return node;
 }
 
 ExpNode_p parse_str_exp(std::deque<std::shared_ptr<Token>> &tokens) {
-  auto str = expect_token_type(TokenType::StrLiteral, tokens)->string_value;
-  return new_str_exp_node(str);
+  auto tok = expect_token_type(TokenType::StrLiteral, tokens);
+  auto str = tok->string_value;
+  auto node = new_str_exp_node(str);
+  node->line_num = tok->line_num;
+  return node;
 }
 
 ExpNode_p parse_int_exp(std::deque<std::shared_ptr<Token>> &tokens) {
-  assert(tokens.front()->type == TokenType::IntLiteral);
-  int val = std::atoi(tokens.front()->string_value.c_str());
-  expect_token_type(TokenType::IntLiteral, tokens);
-  return new_int_exp_node(val);
+  auto tok = expect_token_type(TokenType::IntLiteral, tokens);
+  int val = std::atoi(tok->string_value.c_str());
+  auto node = new_int_exp_node(val);
+  node->line_num = tok->line_num;
+  return node;
 }
 
 ExpNode_p parse_call_exp(std::deque<std::shared_ptr<Token>> &tokens) {
-  auto name = expect_token_type(TokenType::Identifier, tokens)->string_value;
+  auto tok = expect_token_type(TokenType::Identifier, tokens);
+  auto name = tok->string_value;
+
   expect_token_type(TokenType::Lparen, tokens);
   std::vector<ExpNode_p> args;
   if (tokens.front()->type != TokenType::Rparen) {
@@ -170,7 +179,9 @@ ExpNode_p parse_call_exp(std::deque<std::shared_ptr<Token>> &tokens) {
     expect_token_type(TokenType::Rparen, tokens);
   }
 
-  return new_call_exp_node(name, args);
+  auto node = new_call_exp_node(name, args);
+  node->line_num = tok->line_num;
+  return node;
 }
 
 // Pratt's parse() function. Recursively builds an expression AST from a token
@@ -283,35 +294,42 @@ ExpNode_p parse_exp(std::deque<std::shared_ptr<Token>> &tokens) {
 }
 
 StmtNode_p parse_vardecl_stmt(std::deque<std::shared_ptr<Token>> &tokens) {
-  printf("Parsing vardecl\n");
   expect_token_type(TokenType::KeywordVar, tokens);
-  auto name = expect_token_type(TokenType::Identifier, tokens)->string_value;
+  auto tok = expect_token_type(TokenType::Identifier, tokens);
+  auto name = tok->string_value;
   auto type =
       str_to_type(expect_token_type(TokenType::TypeName, tokens)->string_value);
   expect_token_type(TokenType::Assign, tokens);
   ExpNode_p rhs = parse_exp(tokens);
   expect_token_type(TokenType::Semicolon, tokens);
 
-  return new_vardecl_stmt_node(name, type, rhs);
+  auto node = new_vardecl_stmt_node(name, type, rhs);
+  node->line_num = tok->line_num;
+  return node;
 }
 
 StmtNode_p parse_assign_stmt(std::deque<std::shared_ptr<Token>> &tokens) {
   ExpNode_p lhs = parse_exp(tokens);
-  expect_token_type(TokenType::Assign, tokens);
+  auto tok = expect_token_type(TokenType::Assign, tokens);
   ExpNode_p rhs = parse_exp(tokens);
   expect_token_type(TokenType::Semicolon, tokens);
-  return new_assign_stmt_node(lhs, rhs);
+
+  auto node = new_assign_stmt_node(lhs, rhs);
+  node->line_num = tok->line_num;
+  return node;
 }
 
 StmtNode_p parse_return_stmt(std::deque<std::shared_ptr<Token>> &tokens) {
-  expect_token_type(TokenType::KeywordReturn, tokens);
+  auto tok = expect_token_type(TokenType::KeywordReturn, tokens);
   ExpNode_p ret_exp = parse_exp(tokens);
   expect_token_type(TokenType::Semicolon, tokens);
-  return new_return_stmt_node(ret_exp);
+  auto node = new_return_stmt_node(ret_exp);
+  node->line_num = tok->line_num;
+  return node;
 }
 
 StmtNode_p parse_if_stmt(std::deque<std::shared_ptr<Token>> &tokens) {
-  expect_token_type(TokenType::KeywordIf, tokens);
+  auto tok = expect_token_type(TokenType::KeywordIf, tokens);
   // Should parentheses be optional?
   ExpNode_p cond = parse_exp(tokens);
 
@@ -332,11 +350,13 @@ StmtNode_p parse_if_stmt(std::deque<std::shared_ptr<Token>> &tokens) {
     }
     expect_token_type(TokenType::Rcurl, tokens);
   }
-  return new_if_stmt_node(cond, then_stmts, else_stmts);
+  auto node = new_if_stmt_node(cond, then_stmts, else_stmts);
+  node->line_num = tok->line_num;
+  return node;
 }
 
 StmtNode_p parse_while_stmt(std::deque<std::shared_ptr<Token>> &tokens) {
-  expect_token_type(TokenType::KeywordWhile, tokens);
+  auto tok = expect_token_type(TokenType::KeywordWhile, tokens);
   ExpNode_p cond = parse_exp(tokens);
 
   std::vector<StmtNode_p> body_stmts;
@@ -356,11 +376,13 @@ StmtNode_p parse_while_stmt(std::deque<std::shared_ptr<Token>> &tokens) {
     expect_token_type(TokenType::Rcurl, tokens);
   }
 
-  return new_while_stmt_node(cond, body_stmts, otherwise_stmts);
+  auto node = new_while_stmt_node(cond, body_stmts, otherwise_stmts);
+  node->line_num = tok->line_num;
+  return node;
 }
 
 StmtNode_p parse_repeat_stmt(std::deque<std::shared_ptr<Token>> &tokens) {
-  expect_token_type(TokenType::KeywordRepeat, tokens);
+  auto tok = expect_token_type(TokenType::KeywordRepeat, tokens);
   ExpNode_p cond = parse_exp(tokens);
   expect_token_type(TokenType::Lcurl, tokens);
 
@@ -370,11 +392,13 @@ StmtNode_p parse_repeat_stmt(std::deque<std::shared_ptr<Token>> &tokens) {
   }
 
   expect_token_type(TokenType::Rcurl, tokens);
-  return new_repeat_stmt_node(cond, body_stmts);
+  auto node = new_repeat_stmt_node(cond, body_stmts);
+  node->line_num = tok->line_num;
+  return node;
 }
 
 StmtNode_p parse_fundecl_stmt(std::deque<std::shared_ptr<Token>> &tokens) {
-  expect_token_type(TokenType::KeywordFun, tokens);
+  auto tok = expect_token_type(TokenType::KeywordFun, tokens);
 
   auto fun_name =
       expect_token_type(TokenType::Identifier, tokens)->string_value;
@@ -392,7 +416,8 @@ StmtNode_p parse_fundecl_stmt(std::deque<std::shared_ptr<Token>> &tokens) {
       // OK, we probably just want to assign a string value to the name instead
       // of going through a pointer deref whenever we want to find out the name
       // of the parameter.
-      auto param_name = expect_token_type(TokenType::Identifier, tokens);
+      auto param_name =
+          expect_token_type(TokenType::Identifier, tokens)->string_value;
       auto param_type =
           expect_token_type(TokenType::TypeName, tokens)->string_value;
 
@@ -417,13 +442,17 @@ StmtNode_p parse_fundecl_stmt(std::deque<std::shared_ptr<Token>> &tokens) {
     body_stmts.push_back(parse_stmt(tokens));
   }
   expect_token_type(TokenType::Rcurl, tokens);
-
-  return new_fundec_stmt_node(fun_name, type, params, body_stmts);
+  auto node = new_fundec_stmt_node(fun_name, type, params, body_stmts);
+  node->line_num = tok->line_num;
+  return node;
 }
 
 StmtNode_p parse_call_stmt(std::deque<std::shared_ptr<Token>> &tokens) {
 
-  auto name = expect_token_type(TokenType::Identifier, tokens)->string_value;
+  auto token = expect_token_type(TokenType::Identifier, tokens);
+  auto name = token->string_value;
+  auto line_num = token->line_num;
+
   expect_token_type(TokenType::Lparen, tokens);
 
   std::vector<ExpNode_p> args;
@@ -443,7 +472,10 @@ StmtNode_p parse_call_stmt(std::deque<std::shared_ptr<Token>> &tokens) {
     expect_token_type(TokenType::Rparen, tokens);
   }
   expect_token_type(TokenType::Semicolon, tokens);
-  return new_call_stmt_node(name, args);
+
+  auto node = new_call_stmt_node(name, args);
+  node->line_num = line_num;
+  return node;
 }
 
 StmtNode_p parse_stmt(std::deque<std::shared_ptr<Token>> &tokens) {

@@ -1,0 +1,11 @@
+var global int := 400;
+
+fun f1 int () {
+  var variable int := 0;
+
+  variable := "bad type";
+  return variable;
+}
+
+f1();
+return 0;

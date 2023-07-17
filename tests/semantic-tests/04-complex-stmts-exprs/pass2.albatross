@@ -1,0 +1,14 @@
+while (!1) {
+  if (2&&3) {
+    repeat (3+4) {
+        while (!1) {
+          if (2&&3) {
+            repeat (3+4) {
+                while (!1) {
+                  if (2&&3) {
+                    repeat (3+4) {
+                        while (!1) {
+                          if (2&&3) {
+                            repeat (3+4) {
+                                return 1000;
+}}}}}}}}}}}}

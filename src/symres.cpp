@@ -157,7 +157,7 @@ inline void resolve_stmt(StmtNode_p stmt, SymbolTable &st) {
     for (auto p : ops.params) {
       // TODO: p.name_token->string_value is a bad way to access the parameter
       // name.
-      st.add_symbol(p.name_token->string_value, p.type);
+      st.add_symbol(p.name, p.type);
     }
 
     resolve_stmts(ops.body, st);

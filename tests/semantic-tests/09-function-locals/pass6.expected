@@ -1,0 +1,4 @@
+Variable declared "cs" type int
+Function declared "f1" returns int
+Variable written "cs" type int
+Function called "f1" returns int

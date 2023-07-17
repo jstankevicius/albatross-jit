@@ -1,0 +1,6 @@
+"this   string  has actual  tabs"
+# each space in the string above is a tab
+# and here's some strings with just white-space, a mix of spaces and tabs
+" "
+"   "
+"                                                       "

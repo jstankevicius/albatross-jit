@@ -1,0 +1,3 @@
+1 1 STRING 26 this 	 string 	 has 	 tabs
+1 3 STRING 18 like this \ string
+1 4 STRING 58 this is not a new line \n right it stayed in the same line

@@ -47,8 +47,7 @@ Type typecheck_exp(ExpNode_p exp) {
 
       if (arg_type != param_type) {
         printf("Mismatched type in function %s for param %s, position %d\n",
-               ops.name.c_str(),
-               info.params[i].name_token->string_value.c_str(), i);
+               ops.name.c_str(), info.params[i].name.c_str(), i);
       }
     }
     return ops.fun_info.value().ret_type;

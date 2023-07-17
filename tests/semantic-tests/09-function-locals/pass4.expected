@@ -1,0 +1,16 @@
+Function declared "f" returns void
+	Local variable "i1" type int position 0
+	Local variable "s1" type string position 1
+	Local variable "i2" type int position 2
+	Local variable "s2" type string position 3
+	Local variable "i3" type int position 4
+	Local variable "s3" type string position 5
+	Local variable "i4" type int position 6
+Argument/local read "s2" type string frame position 3
+Argument/local written "s1" type string frame position 1
+Argument/local written "s2" type string frame position 3
+Argument/local written "i1" type int frame position 0
+Argument/local read "i2" type int frame position 2
+Argument/local written "i2" type int frame position 2
+Argument/local read "i3" type int frame position 4
+Argument/local written "i3" type int frame position 4

@@ -1,0 +1,14 @@
+Variable declared "i" type int
+Variable declared "j" type int
+Function declared "fs" returns string
+Function declared "fi" returns int
+Variable read "j" type int
+Variable written "i" type int
+Variable read "i" type int
+Variable read "j" type int
+Function declared "fv" returns void
+Variable written "i" type int
+Function called "fv" returns void
+Function called "fs" returns string
+Function called "fi" returns int
+Function called "fi" returns int

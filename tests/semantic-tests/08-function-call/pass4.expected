@@ -1,0 +1,7 @@
+Variable declared "i" type int
+Variable declared "s" type string
+Function declared "fi" returns int
+Function declared "fs" returns string
+Function called "fs" returns string
+Variable written "s" type string
+Function called "fi" returns int

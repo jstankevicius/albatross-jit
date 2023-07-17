@@ -1,0 +1,3 @@
+var variable string := "cs473";
+
+return variable;

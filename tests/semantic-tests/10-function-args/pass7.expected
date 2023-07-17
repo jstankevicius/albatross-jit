@@ -1,0 +1,8 @@
+Variable declared "global" type int
+Function declared "argument" returns int
+Function declared "f1" returns int
+	Argument "argument" type int position 0
+	Local variable "v" type int position 1
+Argument/local read "argument" type int frame position 0
+Argument/local read "v" type int frame position 1
+Function called "f1" returns int

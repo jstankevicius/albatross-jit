@@ -1,0 +1,6 @@
+var v1 string := "hello";
+var v2 string := "world";
+
+v1 := v2;
+v2 := "";
+return 0;

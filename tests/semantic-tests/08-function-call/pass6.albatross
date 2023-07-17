@@ -1,0 +1,20 @@
+var i int := 0;
+var j int := 0;
+
+fun fs string () {
+  return "";
+}
+
+fun fi int () {
+  i := j;
+  return i+j;
+}
+
+fun fv void () {
+  i := 10;
+}
+
+fv();
+fs();
+fi();
+return fi();

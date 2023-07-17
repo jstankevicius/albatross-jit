@@ -1,0 +1,5 @@
+return 1+2;
+if (3-4) { return 5*6; }
+while(7%8) { return 9|10; }
+if (11-12) { return 13*14; } else { return 15&16; }
+while(7%8) { return 9|10; } otherwise { return 1+2; }

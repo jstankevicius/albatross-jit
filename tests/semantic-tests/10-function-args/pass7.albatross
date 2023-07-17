@@ -1,0 +1,13 @@
+var global int := 400;
+
+fun argument int () {
+  return 0;
+}
+
+fun f1 int (argument int) {
+  var v int := 70;
+
+  return argument + v;
+}
+
+return f1(3);

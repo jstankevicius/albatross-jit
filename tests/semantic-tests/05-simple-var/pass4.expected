@@ -1,0 +1,10 @@
+Variable declared "v1" type int
+Variable declared "v2" type int
+Variable declared "v3" type int
+Variable declared "v4" type int
+Variable written "v1" type int
+Variable written "v2" type int
+Variable written "v3" type int
+Variable read "v1" type int
+Variable read "v2" type int
+Variable read "v3" type int

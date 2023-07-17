@@ -40,7 +40,7 @@ typedef enum {
 typedef enum { IntType, StringType, VoidType } Type;
 
 typedef struct TypeNode {
-  std::shared_ptr<Token> name_token;
+  std::string name;
   Type type;
 } TypeNode;
 
@@ -67,6 +67,8 @@ typedef struct FunInfo {
 } FunInfo;
 
 typedef struct ExpNode {
+
+  int line_num = -1;
 
   // The first three are terminals, the last two are nonterminals.
   enum { IntExp, StringExp, VarExp, BinopExp, UnopExp, CallExp } kind;
@@ -113,6 +115,9 @@ typedef struct ExpNode {
 } ExpNode;
 
 typedef struct StmtNode {
+
+  int line_num = -1;
+
   enum StmtKind {
     AssignStmt,
     VardeclStmt,

@@ -1,0 +1,5 @@
+fun f string () {
+  return;
+}
+
+return 2;

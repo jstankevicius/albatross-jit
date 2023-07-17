@@ -1,0 +1,5 @@
+1 1 TYPE string
+8 1 NAME emptyString TYPE string
+20 1 ASSIGN
+23 1 STRING 0 
+25 1 SEMICOLON
