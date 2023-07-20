@@ -127,6 +127,7 @@ inline void resolve_stmt(StmtNode_p stmt, SymbolTable &st) {
     st.enter_scope();
     resolve_stmts(ops.body_stmts, st);
     st.exit_scope();
+    return;
   }
 
   case StmtNode::CallStmt: {
