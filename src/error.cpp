@@ -22,6 +22,9 @@ static std::vector<std::string> split_string(const std::string &str) {
 void print_err(const std::string &src, int line_num, int col_num,
                const std::string &message) {
 
+  assert(line_num > 0);
+  assert(col_num > 0);
+
   const int up_limit = 2;
   const int down_limit = 2;
 

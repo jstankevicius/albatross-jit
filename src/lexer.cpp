@@ -10,6 +10,7 @@
 #include <unordered_map>
 #include <vector>
 
+#include "compiler_stages.h"
 #include "error.h"
 
 inline bool is_alpha(char c) {
@@ -151,8 +152,8 @@ std::shared_ptr<Token> get_numeric_literal(ProgramText &t) {
   }
 
   else if (t.cur_char() == '.' && !is_numeric(t.peek())) {
-    throw AlbatrossError("decimals in the form of 'x.' are not allowed", t.line_num,
-                     t.col_num);
+    throw AlbatrossError("decimals in the form of 'x.' are not allowed",
+                         t.line_num, t.col_num, EXIT_LEXER_FAILURE);
   }
 
   // Add the decimal part, if it exists.
@@ -204,7 +205,8 @@ std::shared_ptr<Token> get_punctuation(ProgramText &t) {
     token->type = TokenType::Comma;
     break;
   default:
-    throw AlbatrossError("unrecognized character", t.line_num, t.col_num);
+    throw AlbatrossError("unrecognized character", t.line_num, t.col_num,
+                         EXIT_LEXER_FAILURE);
   }
 
   t.advance_char();
@@ -235,7 +237,8 @@ std::shared_ptr<Token> get_string_literal(ProgramText &t) {
 
   else {
     // No matching quote
-    throw AlbatrossError("no matching quote", t.line_num, t.col_num);
+    throw AlbatrossError("no matching quote", t.line_num, t.col_num,
+                         EXIT_LEXER_FAILURE);
   }
 
   token->type = TokenType::StrLiteral;
@@ -341,7 +344,8 @@ std::shared_ptr<Token> get_operator(ProgramText &t) {
       t.advance_char();
       break;
     } else {
-      throw AlbatrossError("unrecognized character", t.line_num, t.col_num);
+      throw AlbatrossError("unrecognized character", t.line_num, t.col_num,
+                           EXIT_LEXER_FAILURE);
     }
   }
   case ':': {
@@ -351,11 +355,13 @@ std::shared_ptr<Token> get_operator(ProgramText &t) {
       t.advance_char();
       break;
     } else {
-      throw AlbatrossError("unrecognized character", t.line_num, t.col_num);
+      throw AlbatrossError("unrecognized character", t.line_num, t.col_num,
+                           EXIT_LEXER_FAILURE);
     }
   }
   default: {
-    throw AlbatrossError("unrecognized character", t.line_num, t.col_num);
+    throw AlbatrossError("unrecognized character", t.line_num, t.col_num,
+                         EXIT_LEXER_FAILURE);
   }
   }
 
@@ -413,6 +419,90 @@ std::deque<std::shared_ptr<Token>> tokenize(ProgramText &t) {
     // Skip whitespace characters
     t.skip_whitespace();
   }
+
+#ifdef COMPILE_STAGE_LEXER
+#ifndef COMPILE_STAGE_PARSER
+#ifndef COMPILE_STAGE_SYMBOL_RESOLVER
+#ifndef COMPILE_STAGE_TYPE_CHECKER
+
+  bool has_type = false;
+  std::string type_str = "";
+
+  for (auto token : tokens) {
+    std::cout << token->col_num << " " << token->line_num << " ";
+
+    switch (token->type) {
+      case TokenType::Identifier: {
+        if (has_type) {
+          std::cout << "NAME " << token->string_value << " TYPE " << type_str;
+          has_type = false;
+        } else {
+          std::cout << "NAME " << token->string_value; 
+        }
+        break; 
+      }
+      case TokenType::IntLiteral: std::cout << "INT " << token->string_value; break;
+      case TokenType::Semicolon: std::cout << "SEMICOLON"; break;
+      case TokenType::Comma: std::cout << "COMMA"; break;
+      case TokenType::Assign: std::cout << "ASSIGN"; break;
+      case TokenType::TypeName: { 
+        type_str = token->string_value;
+        has_type = true;
+        std::cout << "TYPE " << token->string_value; 
+        break; 
+      }
+
+
+      case TokenType::OpOr:    std::cout << "OR"; break;
+      case TokenType::OpAnd:   std::cout << "AND"; break;
+      case TokenType::OpBor:   std::cout << "BOR"; break;
+      case TokenType::OpXor:   std::cout << "XOR"; break;
+      case TokenType::OpBand:  std::cout << "BAND"; break;
+      case TokenType::OpNe:    std::cout << "NE"; break;
+      case TokenType::OpEq:    std::cout << "EQ"; break;
+      case TokenType::OpGt:    std::cout << "GT"; break;
+      case TokenType::OpGe:    std::cout << "GE"; break;
+      case TokenType::OpLt:    std::cout << "LT"; break;
+      case TokenType::OpLe:    std::cout << "LE"; break;
+      case TokenType::OpPlus:  std::cout << "PLUS"; break;
+      case TokenType::OpMinus: std::cout << "MINUS"; break;
+      case TokenType::OpTimes: std::cout << "MUL"; break;
+      case TokenType::OpDiv:   std::cout << "DIV"; break;
+      case TokenType::OpRem:   std::cout << "REM"; break;
+      case TokenType::OpNot:   std::cout << "NOT"; break;
+
+      // Everything below here just gets converted to uppercase:
+      case TokenType::Lparen:
+      case TokenType::Rparen:
+      case TokenType::Lcurl:
+      case TokenType::Rcurl:
+      case TokenType::Lbracket:
+      case TokenType::Rbracket:
+      case TokenType::KeywordIf:
+      case TokenType::KeywordElse:
+      case TokenType::KeywordWhile:
+      case TokenType::KeywordReturn:
+      case TokenType::KeywordOtherwise:
+      case TokenType::KeywordRepeat:
+      case TokenType::KeywordFun:
+      case TokenType::KeywordVar: {
+        int len = token->string_value.size();
+        for (int i = 0; i < len; i++) {
+          std::cout << (char) std::toupper(token->string_value[i]);
+        }
+        break;
+      }
+      default:
+        std::cout << "bad\n";
+        exit(-1);
+    }
+    std::cout << "\n";
+  }  
+#endif
+#endif
+#endif
+#endif
+
   std::shared_ptr<Token> eof_token = std::make_shared<Token>();
   eof_token->line_num = t.line_num;
   eof_token->col_num = t.col_num;

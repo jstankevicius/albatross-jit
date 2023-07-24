@@ -9,11 +9,7 @@
 #include "parser.h"
 #include "symres.h"
 #include "typecheck.h"
-
-#define COMPILE_STAGE_LEXER
-#define COMPILE_STAGE_PARSER
-#define COMPILE_STAGE_SYMBOL_RESOLVER
-#define COMPILE_STAGE_TYPE_CHECKER
+#include "compiler_stages.h"
 
 int main(int argc, char *argv[]) {
   if (argc < 2) {
@@ -46,9 +42,7 @@ int main(int argc, char *argv[]) {
 #ifdef COMPILE_STAGE_SYMBOL_RESOLVER
     SymbolTable st;
     st.enter_scope();
-    printf("resolving stmts\n");
     resolve_stmts(stmts, st);
-    printf("done resolving statements :)\n");
 
 #ifdef COMPILE_STAGE_TYPE_CHECKER
     typecheck_stmts(stmts);
@@ -58,6 +52,6 @@ int main(int argc, char *argv[]) {
 #endif
   } catch (AlbatrossError &e) {
     print_err(content, e.line_num(), e.col_num(), e.what());
-    exit(1);
+    exit(e.exit_code());
   }
 }

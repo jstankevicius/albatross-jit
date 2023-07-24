@@ -2,5 +2,6 @@
 
 #include "ast.h"
 #include "symtab.h"
+#include "types.h"
 
 void resolve_stmts(std::vector<StmtNode_p> &stmts, SymbolTable &st);

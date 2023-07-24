@@ -11,26 +11,14 @@
 #include "lexer.h"
 #include "token.h"
 
-Type str_to_type(std::string type_str) {
-  if (type_str == "int")
-    return Type::IntType;
-  else if (type_str == "string")
-    return Type::StringType;
-  else if (type_str == "void")
-    return Type::VoidType;
-  else {
-    printf("Invalid type %s\n", type_str.c_str());
-    exit(-1);
-  }
-}
 
 std::shared_ptr<Token>
 expect_any_token(std::deque<std::shared_ptr<Token>> &tokens) {
-  if (tokens.size() == 0) {
-    printf("Unexpected EOF at end of file\n");
-    exit(-1);
-  }
   auto front = tokens.front();
+  if (front->type == TokenType::Eof) {
+    throw AlbatrossError("Unexpected EOF at end of file", front->line_num,
+                         front->col_num, EXIT_PARSER_FAILURE);
+  }
   tokens.pop_front();
   return front;
 }
@@ -39,19 +27,22 @@ expect_any_token(std::deque<std::shared_ptr<Token>> &tokens) {
 // with an error on the token.
 std::shared_ptr<Token>
 expect_token_type(TokenType type, std::deque<std::shared_ptr<Token>> &tokens) {
-  if (tokens.size() == 0) {
-    printf("Unexpected EOF at end of file\n");
-    exit(-1);
+  auto front = tokens.front();
+
+  if (front->type == TokenType::Eof) {
+    throw AlbatrossError("Unexpected EOF at end of file", front->line_num,
+                         front->col_num, EXIT_PARSER_FAILURE);
   }
 
-  auto token = tokens.front();
-  if (token->type != type) {
+  if (front->type != type) {
     // TODO: better errors
-    throw AlbatrossError("syntax error: unexpected token '" + token->string_value + "'", token->line_num, token->col_num);
+    throw AlbatrossError("syntax error: unexpected token '" +
+                             front->string_value + "'",
+                         front->line_num, front->col_num, EXIT_PARSER_FAILURE);
   }
 
   tokens.pop_front();
-  return token;
+  return front;
 }
 
 struct OpInfo {
@@ -119,6 +110,7 @@ ExpNode_p parse_var_exp(std::deque<std::shared_ptr<Token>> &tokens) {
   auto name = tok->string_value;
   auto node = new_var_exp_node(name);
   node->line_num = tok->line_num;
+  node->col_num = tok->col_num;
   return node;
 }
 
@@ -127,6 +119,7 @@ ExpNode_p parse_str_exp(std::deque<std::shared_ptr<Token>> &tokens) {
   auto str = tok->string_value;
   auto node = new_str_exp_node(str);
   node->line_num = tok->line_num;
+  node->col_num = tok->col_num;
   return node;
 }
 
@@ -135,6 +128,7 @@ ExpNode_p parse_int_exp(std::deque<std::shared_ptr<Token>> &tokens) {
   int val = std::atoi(tok->string_value.c_str());
   auto node = new_int_exp_node(val);
   node->line_num = tok->line_num;
+  node->col_num = tok->col_num;
   return node;
 }
 
@@ -162,6 +156,7 @@ ExpNode_p parse_call_exp(std::deque<std::shared_ptr<Token>> &tokens) {
 
   auto node = new_call_exp_node(name, args);
   node->line_num = tok->line_num;
+  node->col_num = tok->col_num;
   return node;
 }
 
@@ -208,15 +203,18 @@ ExpNode_p exp_bp(std::deque<std::shared_ptr<Token>> &tokens, int min_bp) {
     auto r_bp = info.r_bp;
 
     // Consume the operator; it is guaranteed to be either OpMinus or OpNot
-    expect_any_token(tokens);
+    auto tok = expect_any_token(tokens);
     auto rhs = exp_bp(tokens, r_bp);
 
     lhs = new_unop_exp_node(info.op, rhs);
+    lhs->line_num = tok->line_num;
+    lhs->col_num = tok->col_num;
     break;
   }
 
   default:
-    throw AlbatrossError("Expected an expression", front->line_num, front->col_num);
+    throw AlbatrossError("Expected an expression", front->line_num,
+                         front->col_num, EXIT_PARSER_FAILURE);
   }
 
   while (1) {
@@ -234,11 +232,13 @@ ExpNode_p exp_bp(std::deque<std::shared_ptr<Token>> &tokens, int min_bp) {
       }
 
       // Consume op token
-      expect_any_token(tokens);
+      auto tok = expect_any_token(tokens);
 
       // new_binop_exp_node(op, lhs, rhs);
       // TODO: implement [ operator
       lhs = new_unop_exp_node(info.op, lhs);
+      lhs->line_num = tok->line_num;
+      lhs->col_num = tok->col_num;
       continue;
     }
 
@@ -248,19 +248,21 @@ ExpNode_p exp_bp(std::deque<std::shared_ptr<Token>> &tokens, int min_bp) {
       if (l_bp < min_bp) {
         break;
       }
+
       // Consume op token
-      expect_any_token(tokens);
+      auto tok = expect_any_token(tokens);
 
       // Now parse rhs
       auto rhs = exp_bp(tokens, r_bp);
       // TODO: cons rhs and lhs together
       lhs = new_binop_exp_node(info.op, lhs, rhs);
+      lhs->line_num = tok->line_num;
+      lhs->col_num = tok->col_num;
       continue;
     }
 
     // Anything that isn't an infix or postfix token (like a paren or semicolon)
-    // will fall through to this `break` and exit the loop. This will hand
-    // control back to whatever function called parse_exp so that we can
+    // will fall through to this `break` and exit the loop.
     break;
   }
 
@@ -270,7 +272,6 @@ ExpNode_p exp_bp(std::deque<std::shared_ptr<Token>> &tokens, int min_bp) {
 // Parse an expression from the token stream.
 ExpNode_p parse_exp(std::deque<std::shared_ptr<Token>> &tokens) {
   auto e = exp_bp(tokens, 0);
-  // std::cout << e->to_str() << "\n";
   return e;
 }
 
@@ -286,6 +287,7 @@ StmtNode_p parse_vardecl_stmt(std::deque<std::shared_ptr<Token>> &tokens) {
 
   auto node = new_vardecl_stmt_node(name, type, rhs);
   node->line_num = tok->line_num;
+  node->col_num = tok->col_num;
   return node;
 }
 
@@ -297,6 +299,7 @@ StmtNode_p parse_assign_stmt(std::deque<std::shared_ptr<Token>> &tokens) {
 
   auto node = new_assign_stmt_node(lhs, rhs);
   node->line_num = tok->line_num;
+  node->col_num = tok->col_num;
   return node;
 }
 
@@ -306,6 +309,7 @@ StmtNode_p parse_return_stmt(std::deque<std::shared_ptr<Token>> &tokens) {
   expect_token_type(TokenType::Semicolon, tokens);
   auto node = new_return_stmt_node(ret_exp);
   node->line_num = tok->line_num;
+  node->col_num = tok->col_num;
   return node;
 }
 
@@ -333,6 +337,7 @@ StmtNode_p parse_if_stmt(std::deque<std::shared_ptr<Token>> &tokens) {
   }
   auto node = new_if_stmt_node(cond, then_stmts, else_stmts);
   node->line_num = tok->line_num;
+  node->col_num = tok->col_num;
   return node;
 }
 
@@ -359,6 +364,7 @@ StmtNode_p parse_while_stmt(std::deque<std::shared_ptr<Token>> &tokens) {
 
   auto node = new_while_stmt_node(cond, body_stmts, otherwise_stmts);
   node->line_num = tok->line_num;
+  node->col_num = tok->col_num;
   return node;
 }
 
@@ -375,6 +381,7 @@ StmtNode_p parse_repeat_stmt(std::deque<std::shared_ptr<Token>> &tokens) {
   expect_token_type(TokenType::Rcurl, tokens);
   auto node = new_repeat_stmt_node(cond, body_stmts);
   node->line_num = tok->line_num;
+  node->col_num = tok->col_num;
   return node;
 }
 
@@ -425,6 +432,7 @@ StmtNode_p parse_fundecl_stmt(std::deque<std::shared_ptr<Token>> &tokens) {
   expect_token_type(TokenType::Rcurl, tokens);
   auto node = new_fundec_stmt_node(fun_name, type, params, body_stmts);
   node->line_num = tok->line_num;
+  node->col_num = tok->col_num;
   return node;
 }
 
@@ -433,7 +441,7 @@ StmtNode_p parse_call_stmt(std::deque<std::shared_ptr<Token>> &tokens) {
   auto token = expect_token_type(TokenType::Identifier, tokens);
   auto name = token->string_value;
   auto line_num = token->line_num;
-
+  auto col_num = token->col_num;
   expect_token_type(TokenType::Lparen, tokens);
 
   std::vector<ExpNode_p> args;
@@ -456,6 +464,7 @@ StmtNode_p parse_call_stmt(std::deque<std::shared_ptr<Token>> &tokens) {
 
   auto node = new_call_stmt_node(name, args);
   node->line_num = line_num;
+  node->col_num = col_num;
   return node;
 }
 
@@ -485,7 +494,8 @@ StmtNode_p parse_stmt(std::deque<std::shared_ptr<Token>> &tokens) {
   case TokenType::KeywordFun:
     return parse_fundecl_stmt(tokens);
   default:
-    throw AlbatrossError("expected a statement", front->line_num, front->col_num);
+    throw AlbatrossError("expected a statement", front->line_num,
+                         front->col_num, EXIT_PARSER_FAILURE);
   }
 
   return p;

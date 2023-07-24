@@ -7,6 +7,7 @@
 #include <vector>
 
 #include "token.h"
+#include "types.h"
 
 typedef enum {
   Invalid,
@@ -37,7 +38,6 @@ typedef enum {
   OpSub
 } Operator;
 
-typedef enum { IntType, StringType, VoidType } Type;
 
 typedef struct TypeNode {
   std::string name;
@@ -69,6 +69,7 @@ typedef struct FunInfo {
 typedef struct ExpNode {
 
   int line_num = -1;
+  int col_num = -1;
 
   // The first three are terminals, the last two are nonterminals.
   enum { IntExp, StringExp, VarExp, BinopExp, UnopExp, CallExp } kind;
@@ -95,12 +96,10 @@ typedef struct ExpNode {
     std::optional<VarInfo> var_info;
   } VarOps;
 
-  std::shared_ptr<Token> token;
-
   // TODO: Add IntrinsicOps
   std::variant<int, std::string, BinOps, UnOps, CallOps, VarOps> data;
 
-  inline int int_ops() { printf("intops\n"); return std::get<int>(data); }
+  inline int int_ops() { return std::get<int>(data); }
 
   inline std::string &str_ops() { return std::get<std::string>(data); }
 
@@ -117,6 +116,7 @@ typedef struct ExpNode {
 typedef struct StmtNode {
 
   int line_num = -1;
+  int col_num = -1;
 
   enum StmtKind {
     AssignStmt,

@@ -1,16 +1,6 @@
 #include "symres.h"
 #include "ast.h"
-
-std::string type_to_str(Type t) {
-  switch (t) {
-  case IntType:
-    return "int";
-  case StringType:
-    return "string";
-  case VoidType:
-    return "void";
-  }
-}
+#include "error.h"
 
 void resolve_exp(ExpNode_p exp, SymbolTable &st) {
   switch (exp->kind) {
@@ -27,8 +17,8 @@ void resolve_exp(ExpNode_p exp, SymbolTable &st) {
     // this variable. Error out:
     if (!res.has_value()) {
       // TODO: Better errors:
-      printf("Could not find symbol %s\n", ops.name.c_str());
-      exit(-1);
+      throw AlbatrossError("Could not find symbol " + ops.name, exp->line_num,
+                           exp->col_num, EXIT_SYMRES_FAILURE);
     }
 
     // Otherwise, update this var node with the type and index.
@@ -54,8 +44,8 @@ void resolve_exp(ExpNode_p exp, SymbolTable &st) {
     auto res = st.find_function(ops.name);
 
     if (!res.has_value()) {
-      printf("Undefined function %s\n", ops.name.c_str());
-      exit(-1);
+      throw AlbatrossError("Undefined function " + ops.name, exp->line_num,
+                           exp->col_num, EXIT_SYMRES_FAILURE);
     }
 
     // If the function exists, resolve its args:
@@ -79,8 +69,8 @@ inline void resolve_stmt(StmtNode_p stmt, SymbolTable &st) {
 
     // Check that we are not redeclaring the variable.
     if (st.cur_scope()->find_symbol(name)) {
-      printf("Redefinition of variable %s\n", name.c_str());
-      exit(-1);
+      throw AlbatrossError("Redefinition of variable " + name, stmt->line_num,
+                           stmt->col_num, EXIT_SYMRES_FAILURE);
     }
 
     resolve_exp(ops.rhs, st);
@@ -134,9 +124,10 @@ inline void resolve_stmt(StmtNode_p stmt, SymbolTable &st) {
     auto &ops = stmt->call_ops();
 
     auto res = st.find_function(ops.name);
+
     if (!res.has_value()) {
-      printf("Undefined function %s\n", ops.name.c_str());
-      exit(-1);
+      throw AlbatrossError("Undefined function " + ops.name, stmt->line_num,
+                           stmt->col_num, EXIT_SYMRES_FAILURE);
     }
 
     for (auto arg : ops.args) {
@@ -150,8 +141,8 @@ inline void resolve_stmt(StmtNode_p stmt, SymbolTable &st) {
     auto &ops = stmt->fundec_ops();
     // Make sure we're not redeclaring a function.
     if (st.cur_scope()->find_function(ops.name)) {
-      printf("Redefinition of function %s\n", ops.name.c_str());
-      exit(-1);
+      throw AlbatrossError("Redefinition of function " + ops.name,
+                           stmt->line_num, stmt->col_num, EXIT_SYMRES_FAILURE);
     }
 
     st.add_function(ops.name, ops.ret_type, ops.params);

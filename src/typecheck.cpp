@@ -1,4 +1,6 @@
 #include "typecheck.h"
+#include "error.h"
+
 #include <iostream>
 
 Type typecheck_exp(ExpNode_p exp) {
@@ -17,9 +19,10 @@ Type typecheck_exp(ExpNode_p exp) {
     Type type_lhs = typecheck_exp(ops.e1);
     Type type_rhs = typecheck_exp(ops.e2);
 
+    // TODO: Stricter typechecks here
     if (type_lhs != type_rhs) {
-      printf("Mismatched types in binop\n");
-      exit(-1);
+      throw AlbatrossError("Mismatched types in binop", exp->line_num,
+                           exp->col_num, EXIT_TYPECHECK_FAILURE);
     }
     return type_lhs;
   }
@@ -36,18 +39,21 @@ Type typecheck_exp(ExpNode_p exp) {
     int n_params = info.params.size();
     int n_args = ops.args.size();
     if (n_args != n_params) {
-      printf("Incorrect number of arguments supplied for function %s: expected "
-             "%d, got %d\n",
-             ops.name.c_str(), n_params, n_args);
-      exit(-1);
+      throw AlbatrossError(
+          "Incorrect number of arguments supplied for function " + ops.name +
+              ": expected " + std::to_string(n_params) + ", got" +
+              std::to_string(n_args),
+          exp->line_num, exp->col_num, EXIT_TYPECHECK_FAILURE);
     }
     for (int i = 0; i < n_params; i++) {
       Type arg_type = typecheck_exp(ops.args[i]);
       Type param_type = info.params[i].type;
 
       if (arg_type != param_type) {
-        printf("Mismatched type in function %s for param %s, position %d\n",
-               ops.name.c_str(), info.params[i].name.c_str(), i);
+        throw AlbatrossError(
+            "Mismatched type in function " + ops.name + " for param " +
+                info.params[i].name + ", position " + std::to_string(i),
+            exp->line_num, exp->col_num, EXIT_TYPECHECK_FAILURE);
       }
     }
     return ops.fun_info.value().ret_type;
@@ -67,8 +73,8 @@ void typecheck_stmt(StmtNode_p stmt,
     Type type_rhs = typecheck_exp(ops.rhs);
 
     if (type_lhs != type_rhs) {
-      printf("Mismatched types in assignment\n");
-      exit(-1);
+      throw AlbatrossError("Mismatched types in assignment", stmt->line_num,
+                           stmt->col_num, EXIT_TYPECHECK_FAILURE);
     }
     return;
   }
@@ -78,8 +84,9 @@ void typecheck_stmt(StmtNode_p stmt,
     Type type_lhs = ops.type;
     Type type_rhs = typecheck_exp(ops.rhs);
     if (type_lhs != type_rhs) {
-      printf("Mismatched types in vardecl\n");
-      exit(-1);
+      throw AlbatrossError("Mismatched types in variable declaration",
+                           stmt->line_num, stmt->col_num,
+                           EXIT_TYPECHECK_FAILURE);
     }
     return;
   }
@@ -113,9 +120,10 @@ void typecheck_stmt(StmtNode_p stmt,
     Type ret_exp_type = typecheck_exp(stmt->ret_ops().ret_exp);
 
     if (fun_ret_type && fun_ret_type.value() != ret_exp_type) {
-      printf("Return statement does not return type specified in function "
-             "declaration.\n");
-      exit(-1);
+      throw AlbatrossError("Return statement does not return type specified in "
+                           "function declaration.",
+                           stmt->line_num, stmt->col_num,
+                           EXIT_TYPECHECK_FAILURE);
     }
     return;
   }
