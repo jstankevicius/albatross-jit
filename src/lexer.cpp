@@ -1,7 +1,3 @@
-// The Boba lexer. The lexer's only job is to take a "stream" (a fancy
-// term for a string) and turn it into a list of tokens that is then
-// passed back to the parser.
-
 #include "lexer.h"
 
 #include <iostream>
