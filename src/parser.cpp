@@ -11,7 +11,6 @@
 #include "lexer.h"
 #include "token.h"
 
-
 std::shared_ptr<Token>
 expect_any_token(std::deque<std::shared_ptr<Token>> &tokens) {
   auto front = tokens.front();

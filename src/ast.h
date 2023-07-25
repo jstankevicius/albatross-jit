@@ -38,7 +38,6 @@ typedef enum {
   OpSub
 } Operator;
 
-
 typedef struct TypeNode {
   std::string name;
   Type type;
