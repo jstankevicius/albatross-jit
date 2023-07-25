@@ -72,6 +72,12 @@ void ProgramText::advance_char() {
   }
 }
 
+char ProgramText::next() {
+  char c = cur_char();
+  advance_char();
+  return c;
+}
+
 // Skips over whitespace characters until a non-whitespace character is
 // encountered.
 void ProgramText::skip_whitespace() {
@@ -112,8 +118,7 @@ std::shared_ptr<Token> get_symbol(ProgramText &t) {
   // TODO: This doesn't support underscores
   while (!is_whitespace(t.cur_char()) && !t.done() &&
          (is_alphanumeric(t.cur_char()) || t.cur_char() == '_')) {
-    str += t.cur_char();
-    t.advance_char();
+    str += t.next();
   }
 
   token->string_value = str;
@@ -138,18 +143,13 @@ std::shared_ptr<Token> get_numeric_literal(ProgramText &t) {
 
   if (t.cur_char() == '0') {
     if (t.peek() == 'x') {
-      num_literal += t.cur_char();
-      t.advance_char();
-      num_literal += t.cur_char();
-      t.advance_char();
+      num_literal += t.next();
+      num_literal += t.next();
 
       // Hexadecimal
-      num_literal += t.cur_char();
-      t.advance_char();
       while (is_numeric(t.cur_char()) || ('A' <= std::toupper(t.cur_char()) &&
                                           std::toupper(t.cur_char()) <= 'F')) {
-        num_literal += t.cur_char();
-        t.advance_char();
+        num_literal += t.next();
         while (t.cur_char() == '_')
           t.advance_char();
       }
@@ -166,11 +166,10 @@ std::shared_ptr<Token> get_numeric_literal(ProgramText &t) {
 
     } else {
       // Octal
-      num_literal += t.cur_char();
-      t.advance_char();
+      num_literal += t.next();
+
       while ('0' <= t.cur_char() && t.cur_char() <= '7') {
-        num_literal += t.cur_char();
-        t.advance_char();
+        num_literal += t.next();
         while (t.cur_char() == '_')
           t.advance_char();
       }
@@ -188,8 +187,7 @@ std::shared_ptr<Token> get_numeric_literal(ProgramText &t) {
   }
 
   while (is_numeric(t.cur_char())) {
-    num_literal += t.cur_char();
-    t.advance_char();
+    num_literal += t.next();
 
     while (t.cur_char() == '_')
       t.advance_char();
@@ -199,8 +197,7 @@ std::shared_ptr<Token> get_numeric_literal(ProgramText &t) {
   // literal.
   if (t.cur_char() == '.' && is_numeric(t.peek())) {
     is_float_literal = true;
-    num_literal += t.cur_char();
-    t.advance_char();
+    num_literal += t.next();
   }
 
   else if (t.cur_char() == '.' && !is_numeric(t.peek())) {
@@ -210,8 +207,7 @@ std::shared_ptr<Token> get_numeric_literal(ProgramText &t) {
 
   // Add the decimal part, if it exists.
   while (is_numeric(t.cur_char())) {
-    num_literal += t.cur_char();
-    t.advance_char();
+    num_literal += t.next();
   }
 
   token->string_value = num_literal;
@@ -274,6 +270,7 @@ std::shared_ptr<Token> get_string_literal(ProgramText &t) {
   std::string str_literal;
 
   // str_literal += t.cur_char();
+  // Skip opening quote
   t.advance_char();
 
   while (t.cur_char() != '"' && !t.done()) {
@@ -307,8 +304,7 @@ std::shared_ptr<Token> get_string_literal(ProgramText &t) {
       }
     }
 
-    str_literal += t.cur_char();
-    t.advance_char();
+    str_literal += t.next();
   }
 
   // Add in closing quote, if it exists:
@@ -343,35 +339,35 @@ std::shared_ptr<Token> get_operator(ProgramText &t) {
   switch (cur_char) {
   case '+':
     token->type = TokenType::OpPlus;
-    t.advance_char();
+    token->string_value += t.next();
     break;
   case '-':
     token->type = TokenType::OpMinus;
-    t.advance_char();
+    token->string_value += t.next();
     break;
   case '*':
     token->type = TokenType::OpTimes;
-    t.advance_char();
+    token->string_value += t.next();
     break;
   case '/':
     token->type = TokenType::OpDiv;
-    t.advance_char();
+    token->string_value += t.next();
     break;
   case '%':
     token->type = TokenType::OpRem;
-    t.advance_char();
+    token->string_value += t.next();
     break;
   case '!': {
     token->type = TokenType::OpNot;
-    t.advance_char();
+    token->string_value += t.next();
     break;
   }
   case '&': {
     // Two cases here: & (binary AND), or && (logical AND).
-    t.advance_char();
+    token->string_value += t.next();
     if (next_char == '&') {
       token->type = TokenType::OpAnd;
-      t.advance_char();
+      token->string_value += t.next();
     } else {
       token->type = TokenType::OpBand;
     }
@@ -379,10 +375,10 @@ std::shared_ptr<Token> get_operator(ProgramText &t) {
   }
   case '|': {
     // Two cases here: | (binary OR), or || (logical OR).
-    t.advance_char();
+    token->string_value += t.next();
     if (next_char == '|') {
       token->type = TokenType::OpOr;
-      t.advance_char();
+      token->string_value += t.next();
     } else {
       token->type = TokenType::OpBor;
     }
@@ -390,19 +386,19 @@ std::shared_ptr<Token> get_operator(ProgramText &t) {
   }
   case '^': {
     token->type = TokenType::OpXor;
-    t.advance_char();
+    token->string_value += t.next();
     break;
   }
   case '<': {
     // Three potential cases: < (less than), <= (less than or equal to), or <>
     // (not equals).
-    t.advance_char();
+    token->string_value += t.next();
     if (next_char == '=') {
       token->type = TokenType::OpLe;
-      t.advance_char();
+      token->string_value += t.next();
     } else if (next_char == '>') {
       token->type = TokenType::OpNe;
-      t.advance_char();
+      token->string_value += t.next();
     } else {
       token->type = TokenType::OpLt;
     }
@@ -410,10 +406,10 @@ std::shared_ptr<Token> get_operator(ProgramText &t) {
   }
   case '>': {
     // Only two cases: > (greater than) or >= (greater than or equal to).
-    t.advance_char();
+    token->string_value += t.next();
     if (next_char == '=') {
       token->type = TokenType::OpGe;
-      t.advance_char();
+      token->string_value += t.next();
     } else {
       token->type = TokenType::OpGt;
     }
@@ -422,8 +418,8 @@ std::shared_ptr<Token> get_operator(ProgramText &t) {
   case '=': {
     if (t.peek() == '=') {
       token->type = TokenType::OpEq;
-      t.advance_char();
-      t.advance_char();
+      token->string_value += t.next();
+      token->string_value += t.next();
       break;
     } else {
       throw AlbatrossError("unrecognized character", t.line_num, t.col_num,
@@ -433,8 +429,8 @@ std::shared_ptr<Token> get_operator(ProgramText &t) {
   case ':': {
     if (t.peek() == '=') {
       token->type = TokenType::Assign;
-      t.advance_char();
-      t.advance_char();
+      token->string_value += t.next();
+      token->string_value += t.next();
       break;
     } else {
       throw AlbatrossError("unrecognized character", t.line_num, t.col_num,

@@ -23,6 +23,7 @@ struct ProgramText {
   char cur_char();
   char peek();
   void advance_char();
+  char next();
   void skip_whitespace();
 };
 
