@@ -1,8 +1,7 @@
 var global int := 10;
 
 fun function int () {
-  var local_variable int := 0;
-  return global+1*local_variable;
+  return global+1*2;
 }
 
 return global+3;
