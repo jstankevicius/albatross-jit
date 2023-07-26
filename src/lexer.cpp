@@ -153,8 +153,7 @@ std::shared_ptr<Token> get_numeric_literal(ProgramText &t) {
       base = 16;
       t.advance_char();
       t.advance_char();
-    }
-    else {
+    } else {
       // Octal
       base = 8;
     }
@@ -164,16 +163,19 @@ std::shared_ptr<Token> get_numeric_literal(ProgramText &t) {
   }
 
   if (t.cur_char() == '_') {
-    throw AlbatrossError("Illegal int literal " + num_literal, t.line_num, t.col_num, EXIT_LEXER_FAILURE);
+    throw AlbatrossError("Illegal int literal " + num_literal, t.line_num,
+                         t.col_num, EXIT_LEXER_FAILURE);
   }
 
   while (is_alphanumeric(t.cur_char())) {
     // Check, depending on the base, for illegal digits:
     char c = std::toupper(t.cur_char());
-    if ((base == 8 && !('0' <= c && c <= '7'))
-    || (base == 10 && !('0' <= c && c <= '9'))
-    || (base == 16 && !(('0' <= c && c <= '9') || ('A' <= c && c <= 'F')))) {
-      throw AlbatrossError("Illegal digit for int of base " + std::to_string(base), t.line_num, t.col_num, EXIT_LEXER_FAILURE);
+    if ((base == 8 && !('0' <= c && c <= '7')) ||
+        (base == 10 && !('0' <= c && c <= '9')) ||
+        (base == 16 && !(('0' <= c && c <= '9') || ('A' <= c && c <= 'F')))) {
+      throw AlbatrossError("Illegal digit for int of base " +
+                               std::to_string(base),
+                           t.line_num, t.col_num, EXIT_LEXER_FAILURE);
     }
 
     num_literal += t.next();
@@ -184,15 +186,16 @@ std::shared_ptr<Token> get_numeric_literal(ProgramText &t) {
     }
   }
 
-  try { 
+  try {
     num_literal = std::to_string(std::stoi(num_literal, 0, base));
   }
 
   catch (std::invalid_argument &e) {
-    throw AlbatrossError("Illegal int literal " + num_literal, t.line_num, t.col_num, EXIT_LEXER_FAILURE);
-  }
-  catch (std::out_of_range &e) {
-    throw AlbatrossError("Int " + num_literal + " is out of range", t.line_num, t.col_num, EXIT_LEXER_FAILURE);
+    throw AlbatrossError("Illegal int literal " + num_literal, t.line_num,
+                         t.col_num, EXIT_LEXER_FAILURE);
+  } catch (std::out_of_range &e) {
+    throw AlbatrossError("Int " + num_literal + " is out of range", t.line_num,
+                         t.col_num, EXIT_LEXER_FAILURE);
   }
   token->string_value = num_literal;
 
