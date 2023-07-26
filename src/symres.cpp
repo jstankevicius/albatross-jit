@@ -162,7 +162,10 @@ inline void resolve_stmt(StmtNode_p stmt, SymbolTable &st) {
   }
 
   case StmtNode::RetStmt: {
-    resolve_exp(stmt->ret_ops().ret_exp, st);
+    auto ops = stmt->ret_ops();
+    if (ops.ret_exp.get() != nullptr) {
+      resolve_exp(stmt->ret_ops().ret_exp, st);
+    }
     return;
   }
   }

@@ -7,9 +7,96 @@
 #include <string>
 
 #include "ast.h"
+#include "compiler_stages.h"
 #include "error.h"
 #include "lexer.h"
 #include "token.h"
+
+std::string op_str(Operator op) {
+  switch (op) {
+  case OpOr:
+    return "||";
+  case OpAnd:
+    return "&&";
+  case OpBor:
+    return "|";
+  case OpXor:
+    return "^";
+  case OpBand:
+    return "&";
+  case OpNe:
+    return "<>";
+  case OpEq:
+    return "==";
+  case OpGt:
+    return ">";
+  case OpGe:
+    return ">=";
+  case OpLt:
+    return "<";
+  case OpLe:
+    return "<=";
+  case OpPlus:
+    return "+";
+  case OpMinus:
+    return "-";
+  case OpTimes:
+    return "*";
+  case OpDiv:
+    return "/";
+  case OpRem:
+    return "%";
+  case OpNot:
+    return "!";
+  case OpNeg:
+    return "-";
+  case OpSub:
+    return "[";
+  default:
+    perror("Invalid operator");
+    exit(EXIT_FAILURE);
+  }
+}
+
+std::string exp_str(ExpNode_p exp) {
+  switch (exp->kind) {
+  case ExpNode::UnopExp: {
+    auto ops = exp->un_ops();
+    return "(" + op_str(ops.op) + exp_str(ops.e) + ")";
+  }
+  case ExpNode::BinopExp: {
+    auto ops = exp->bin_ops();
+    return "(" + exp_str(ops.e1) + op_str(ops.op) + exp_str(ops.e2) + ")";
+  }
+  case ExpNode::CallExp: {
+    auto ops = exp->call_ops();
+    std::string arg_str = "";
+    auto args = ops.args;
+    for (unsigned int i = 0; i < args.size(); i++) {
+      arg_str += exp_str(args[i]);
+      if (i < args.size() - 1) {
+        arg_str += ",";
+      }
+    }
+    return ops.name + "(" + arg_str + ")";
+  }
+  case ExpNode::VarExp: {
+    auto ops = exp->var_ops();
+    return "(" + ops.name + ")";
+  }
+  case ExpNode::IntExp: {
+    int i = exp->int_ops();
+    return "(" + std::to_string(i) + ")";
+  }
+  case ExpNode::StringExp: {
+    auto ops = exp->str_ops();
+    return "(\"" + ops + "\")";
+  }
+  default:
+    throw AlbatrossError("Attempt to print an invalid expression",
+                         exp->line_num, exp->col_num, EXIT_FAILURE);
+  }
+}
 
 std::shared_ptr<Token>
 expect_any_token(std::deque<std::shared_ptr<Token>> &tokens) {
@@ -287,6 +374,17 @@ StmtNode_p parse_vardecl_stmt(std::deque<std::shared_ptr<Token>> &tokens) {
   auto node = new_vardecl_stmt_node(name, type, rhs);
   node->line_num = tok->line_num;
   node->col_num = tok->col_num;
+
+#ifdef COMPILE_STAGE_LEXER
+#ifdef COMPILE_STAGE_PARSER
+#ifndef COMPILE_STAGE_SYMBOL_RESOLVER
+#ifndef COMPILE_STAGE_TYPE_CHECKER
+  std::cout << exp_str(rhs) << "\n";
+#endif
+#endif
+#endif
+#endif
+
   return node;
 }
 
@@ -299,12 +397,40 @@ StmtNode_p parse_assign_stmt(std::deque<std::shared_ptr<Token>> &tokens) {
   auto node = new_assign_stmt_node(lhs, rhs);
   node->line_num = tok->line_num;
   node->col_num = tok->col_num;
+
+#ifdef COMPILE_STAGE_LEXER
+#ifdef COMPILE_STAGE_PARSER
+#ifndef COMPILE_STAGE_SYMBOL_RESOLVER
+#ifndef COMPILE_STAGE_TYPE_CHECKER
+  std::cout << exp_str(rhs) << "\n";
+#endif
+#endif
+#endif
+#endif
+
   return node;
 }
 
 StmtNode_p parse_return_stmt(std::deque<std::shared_ptr<Token>> &tokens) {
   auto tok = expect_token_type(TokenType::KeywordReturn, tokens);
-  ExpNode_p ret_exp = parse_exp(tokens);
+
+  std::shared_ptr<ExpNode> ret_exp(nullptr);
+
+  if (tokens.front()->type != TokenType::Semicolon) {
+    ret_exp = parse_exp(tokens);
+
+#ifdef COMPILE_STAGE_LEXER
+#ifdef COMPILE_STAGE_PARSER
+#ifndef COMPILE_STAGE_SYMBOL_RESOLVER
+#ifndef COMPILE_STAGE_TYPE_CHECKER
+    std::cout << exp_str(ret_exp) << "\n";
+#endif
+#endif
+#endif
+#endif
+
+  }
+
   expect_token_type(TokenType::Semicolon, tokens);
   auto node = new_return_stmt_node(ret_exp);
   node->line_num = tok->line_num;
@@ -316,6 +442,17 @@ StmtNode_p parse_if_stmt(std::deque<std::shared_ptr<Token>> &tokens) {
   auto tok = expect_token_type(TokenType::KeywordIf, tokens);
   // Should parentheses be optional?
   ExpNode_p cond = parse_exp(tokens);
+
+
+#ifdef COMPILE_STAGE_LEXER
+#ifdef COMPILE_STAGE_PARSER
+#ifndef COMPILE_STAGE_SYMBOL_RESOLVER
+#ifndef COMPILE_STAGE_TYPE_CHECKER
+  std::cout << exp_str(cond) << "\n";
+#endif
+#endif
+#endif
+#endif
 
   std::vector<StmtNode_p> then_stmts;
   expect_token_type(TokenType::Lcurl, tokens);
@@ -344,6 +481,16 @@ StmtNode_p parse_while_stmt(std::deque<std::shared_ptr<Token>> &tokens) {
   auto tok = expect_token_type(TokenType::KeywordWhile, tokens);
   ExpNode_p cond = parse_exp(tokens);
 
+#ifdef COMPILE_STAGE_LEXER
+#ifdef COMPILE_STAGE_PARSER
+#ifndef COMPILE_STAGE_SYMBOL_RESOLVER
+#ifndef COMPILE_STAGE_TYPE_CHECKER
+  std::cout << exp_str(cond) << "\n";
+#endif
+#endif
+#endif
+#endif
+
   std::vector<StmtNode_p> body_stmts;
   expect_token_type(TokenType::Lcurl, tokens);
   while (tokens.front()->type != TokenType::Rcurl) {
@@ -370,6 +517,17 @@ StmtNode_p parse_while_stmt(std::deque<std::shared_ptr<Token>> &tokens) {
 StmtNode_p parse_repeat_stmt(std::deque<std::shared_ptr<Token>> &tokens) {
   auto tok = expect_token_type(TokenType::KeywordRepeat, tokens);
   ExpNode_p cond = parse_exp(tokens);
+
+#ifdef COMPILE_STAGE_LEXER
+#ifdef COMPILE_STAGE_PARSER
+#ifndef COMPILE_STAGE_SYMBOL_RESOLVER
+#ifndef COMPILE_STAGE_TYPE_CHECKER
+  std::cout << exp_str(cond) << "\n";
+#endif
+#endif
+#endif
+#endif
+
   expect_token_type(TokenType::Lcurl, tokens);
 
   std::vector<StmtNode_p> body_stmts;
@@ -464,6 +622,26 @@ StmtNode_p parse_call_stmt(std::deque<std::shared_ptr<Token>> &tokens) {
   auto node = new_call_stmt_node(name, args);
   node->line_num = line_num;
   node->col_num = col_num;
+
+#ifdef COMPILE_STAGE_LEXER
+#ifdef COMPILE_STAGE_PARSER
+#ifndef COMPILE_STAGE_SYMBOL_RESOLVER
+#ifndef COMPILE_STAGE_TYPE_CHECKER
+  std::cout << name << "(";
+  std::string arg_str = "";
+  for (unsigned int i = 0; i < args.size(); i++) {
+    arg_str += exp_str(args[i]);
+    if (i < args.size() - 1) {
+      arg_str += ",";
+    }
+  }
+  std::cout << arg_str;
+  std::cout << ")";
+#endif
+#endif
+#endif
+#endif
+
   return node;
 }
 
@@ -507,4 +685,14 @@ parse_stmts(std::deque<std::shared_ptr<Token>> &tokens) {
     stmts.push_back(parse_stmt(tokens));
   }
   return stmts;
+
+#ifdef COMPILE_STAGE_LEXER
+#ifdef COMPILE_STAGE_PARSER
+#ifndef COMPILE_STAGE_SYMBOL_RESOLVER
+#ifndef COMPILE_STAGE_TYPE_CHECKER
+std::cout <<"AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA\n";
+#endif
+#endif
+#endif
+#endif
 }

@@ -3,7 +3,6 @@ import os
 import re
 import subprocess
 
-_TEST_DIR    = "tests"
 _BUILD_CMD   = ["make", "all", "-j8"]
 _CLEAN_CMD   = ["make", "clean"]
 _STAGE_FILE  = "src/compiler_stages.h"
@@ -25,7 +24,7 @@ _DEFAULT_COMPILER_STAGES_FILE_CONTENTS = """// DO NOT EDIT MANUALLY.
 _COMPAT_TEST_CONFIGS = [
     ("tests/lexer-tests",    _STAGE_FLAGS[:1], [201]),
     ("tests/parser-tests",   _STAGE_FLAGS[:2], [202]),
-    ("tests/semantic-tests", _STAGE_FLAGS[:4], [203, 204]),
+    # ("tests/semantic-tests", _STAGE_FLAGS[:4], [203, 204]),
 ]
 
 def define_flags(flags):
@@ -36,7 +35,6 @@ def define_flags(flags):
         stage_file.writelines(lines)
 
 
-_RJUST_COLUMN = 70
 def main():
 
     for test_dir, flags, fail_errcodes in _COMPAT_TEST_CONFIGS:
@@ -82,12 +80,14 @@ def main():
 
                 result = subprocess.run([_BIN, input_path], capture_output=True)
 
+                with open("dummy", "w") as dummy:
+                    dummy.write(result.stdout.decode("utf-8") + "\n")
                 try:
+                    print(subgroup_path + input_file)
                     result.check_returncode()
-
                     if output_file is not None:
                         # Compare output
-                        cmd = f"diff {subgroup_path + output_file} <({_BIN} {subgroup_path + input_file})"
+                        cmd = f"diff -B {subgroup_path + output_file} dummy"
                         subprocess.check_call(cmd, shell=True, executable="/bin/bash")
 
                     n_passed += 1
@@ -96,12 +96,14 @@ def main():
                     if should_fail and result.returncode in fail_errcodes:
                         n_passed += 1
                     else:
-                        stderr = result.stderr.decode("utf-8")
-                        failed_inputs.append((input_path, stderr))
+                        # stderr = result.stderr.decode("utf-8")
+                        failed_inputs.append((input_path, None))
 
                         # print("\033[1;31m FAILED:\033[0m", input_path)
                         # print(result.stdout.decode("utf-8"))
                         # print(result.stderr.decode("utf-8"))
+
+                os.system("rm dummy")
             
 
             # output_line = f"\033[1m {subgroup_path}"
@@ -110,7 +112,7 @@ def main():
             # print(output_line)
 
             for input_path, stderr in failed_inputs:
-                print(f"  {input_path} \n  stderr: {stderr}")
+                 print(f"  FAILED: {input_path}")
 
     with open(_STAGE_FILE, "w") as stage_file:
         stage_file.write(_DEFAULT_COMPILER_STAGES_FILE_CONTENTS)

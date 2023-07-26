@@ -4,12 +4,12 @@
 #include <string>
 #include <vector>
 
+#include "compiler_stages.h"
 #include "error.h"
 #include "lexer.h"
 #include "parser.h"
 #include "symres.h"
 #include "typecheck.h"
-#include "compiler_stages.h"
 
 int main(int argc, char *argv[]) {
   if (argc < 2) {

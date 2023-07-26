@@ -6,6 +6,7 @@
 #include <variant>
 #include <vector>
 
+#include "error.h"
 #include "token.h"
 #include "types.h"
 

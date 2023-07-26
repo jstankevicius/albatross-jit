@@ -4,6 +4,10 @@
 #include <iostream>
 
 Type typecheck_exp(ExpNode_p exp) {
+  if (exp.get() == nullptr) {
+    return VoidType;
+  }
+
   switch (exp->kind) {
   case ExpNode::IntExp: {
     return IntType;
@@ -117,7 +121,7 @@ void typecheck_stmt(StmtNode_p stmt,
     return;
   }
   case StmtNode::RetStmt: {
-    Type ret_exp_type = typecheck_exp(stmt->ret_ops().ret_exp);
+    Type ret_exp_type = stmt->ret_ops().ret_exp.get() != nullptr ? typecheck_exp(stmt->ret_ops().ret_exp) : VoidType;
 
     if (fun_ret_type && fun_ret_type.value() != ret_exp_type) {
       throw AlbatrossError("Return statement does not return type specified in "

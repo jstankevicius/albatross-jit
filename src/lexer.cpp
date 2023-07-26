@@ -504,14 +504,14 @@ std::deque<std::shared_ptr<Token>> tokenize(ProgramText &t) {
 #ifndef COMPILE_STAGE_TYPE_CHECKER
   // This section of the code is only compiled when running compatibility tests
   // for the Albatross lexer. The old tests require the lexer to produce
-  // specific output for each token, which normally consists of the column 
+  // specific output for each token, which normally consists of the column
   // number, line number, and token type. Certain tokens also produce extra
-  // output depending on their contents. 
+  // output depending on their contents.
   //
   // Some choices of "correct" output are a bit strange to me, but we abide by
-  // the requirements anyway. 
+  // the requirements anyway.
   // One example is tests/lexer-tests/06-vars-pass2.albatross:
-  // 
+  //
   //    int name
   //    char of
   //    string many
@@ -537,8 +537,8 @@ std::deque<std::shared_ptr<Token>> tokenize(ProgramText &t) {
   // not necessarily valid Albatross programs (and therefore do not have any
   // semantic meaning under the Albatross specification), why embed semantic
   // meaning in a test case for the *lexer*? If `name` was really of type `int`,
-  // it wouldn't have been declared as `int name`, but instead 
-  // `var name int := 0;`, or at least `name int`. 
+  // it wouldn't have been declared as `int name`, but instead
+  // `var name int := 0;`, or at least `name int`.
   //
   // An even stranger case is tests/lexer-tests/06-vars-pass3.albatross. I
   // present only a section of the program:
@@ -593,13 +593,13 @@ std::deque<std::shared_ptr<Token>> tokenize(ProgramText &t) {
   // meaning to the program anyway.
   // Let's beat the dead horse one more time with
   // tests/lexer-tests/08-strings/pass1.albatross:
-  // 
+  //
   //     string var := "strings constants look like this";
   //     string str := "this is a longer string literal constant";
   //     string sml := "and a small one";
   //
   // Expected output:
-  // 
+  //
   //     1 1 TYPE string
   //     8 1 NAME var TYPE string
   //     12 1 ASSIGN
@@ -626,7 +626,6 @@ std::deque<std::shared_ptr<Token>> tokenize(ProgramText &t) {
   // wouldn't have had to reimplement the entire frontend for the language. But
   // I'm glad I did! It feels a lot more satisfying to pass test cases you
   // struggled through in university, even if you don't agree with them. :)
-
 
   std::string type_str = "";
 
