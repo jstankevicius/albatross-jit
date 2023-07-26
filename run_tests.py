@@ -3,6 +3,11 @@ import os
 import re
 import subprocess
 
+RED           = "\033[1;31m"
+GREEN         = "\033[1;32m"
+RESET         = "\033[0m"
+_RJUST_COLUMN = 80
+
 _BUILD_CMD   = ["make", "all", "-j8"]
 _CLEAN_CMD   = ["make", "clean"]
 _STAGE_FILE  = "src/compiler_stages.h"
@@ -51,10 +56,9 @@ def main():
 
             input_files = sorted(os.listdir(subgroup_path))
 
-            n_passed = 0
-
-            failed_inputs = []
+            n_passed         = 0
             expected_outputs = {}
+            failed_inputs    = []
 
             for name in input_files:
                 test_name, extension = name.split(".")
@@ -74,7 +78,8 @@ def main():
                 # Skip anything that isn't a source file
                 if input_file.split(".")[1] != "albatross":
                     continue
-
+                
+                passed = False
                 input_path = subgroup_path + input_file
                 should_fail = input_file[:4] == "fail"
 
@@ -82,19 +87,21 @@ def main():
 
                 with open("dummy", "w") as dummy:
                     dummy.write(result.stdout.decode("utf-8") + "\n")
+
                 try:
-                    print(subgroup_path + input_file)
                     result.check_returncode()
                     if output_file is not None:
                         # Compare output
                         cmd = f"diff -B {subgroup_path + output_file} dummy"
                         subprocess.check_call(cmd, shell=True, executable="/bin/bash")
+                        passed = True
 
                     n_passed += 1
 
                 except subprocess.CalledProcessError:
                     if should_fail and result.returncode in fail_errcodes:
                         n_passed += 1
+                        passed = True
                     else:
                         # stderr = result.stderr.decode("utf-8")
                         failed_inputs.append((input_path, None))
@@ -104,12 +111,10 @@ def main():
                         # print(result.stderr.decode("utf-8"))
 
                 os.system("rm dummy")
-            
 
-            # output_line = f"\033[1m {subgroup_path}"
-            # output_line += f"{n_passed}/{n_group_tests}\033[0m".rjust(_RJUST_COLUMN - len(output_line))
-            # output_line += "\033[1;31m FAIL\033[0m" if n_passed != n_group_tests else "\033[1;32m PASS\033[0m"
-            # print(output_line)
+                output_line = f"  {subgroup_path}{input_file}"
+                output_line += (f"[{GREEN}PASS{RESET}]" if passed else f"[{RED}FAIL{RESET}]").rjust(_RJUST_COLUMN - len(output_line))
+                print(output_line)
 
             for input_path, stderr in failed_inputs:
                  print(f"  FAILED: {input_path}")
