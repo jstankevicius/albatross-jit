@@ -636,6 +636,11 @@ StmtNode_p parse_call_stmt(std::deque<std::shared_ptr<Token>> &tokens) {
     }
   }
   std::cout << arg_str;
+
+  // NOTE: This SHOULD print a newline, but due to a bug in the test-generating
+  // script, call statements do not emit a newline character at the end. I am
+  // keeping the output in its original form for "compatibility".
+  // The correct line would be `std::cout << ")\n";`
   std::cout << ")";
 #endif
 #endif
