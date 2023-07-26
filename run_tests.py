@@ -90,14 +90,15 @@ def main():
                 if input_file.split(".")[1] != "albatross":
                     continue
 
+                output_line = f"  {subgroup_path}{input_file}"
+
                 if subgroup_path + input_file in _SKIP:
-                    output_line = f"  {subgroup_path}{input_file}"
                     output_line += f"[{GRAY}SKIP{RESET}]".rjust(_RJUST_COLUMN - len(output_line))
                     print(output_line)
                     continue
                 
-                passed = False
-                input_path = subgroup_path + input_file
+                input_path  = subgroup_path + input_file
+                passed      = False
                 should_fail = input_file[:4] == "fail"
 
                 result = subprocess.run([_BIN, input_path], capture_output=True)
@@ -122,7 +123,6 @@ def main():
 
                 os.system("rm dummy")
 
-                output_line = f"  {subgroup_path}{input_file}"
                 output_line += (f"[{GREEN}PASS{RESET}]" if passed else f"[{RED}FAIL{RESET}]").rjust(_RJUST_COLUMN - len(output_line))
                 print(output_line)
 
