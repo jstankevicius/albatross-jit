@@ -71,6 +71,11 @@ def get_file_pairs(path):
 
 def main():
 
+    total_run     = 0
+    total_passed  = 0
+    total_failed  = 0
+    total_skipped = 0
+
     for test_dir, flags, fail_errcodes in _COMPAT_TEST_CONFIGS:
         # Compile the binary w/ given flags for this test group.
         define_flags(flags)
@@ -95,6 +100,8 @@ def main():
                 if subgroup_path + input_file in _SKIP:
                     output_line += f"[{GRAY}SKIP{RESET}]".rjust(_RJUST_COLUMN - len(output_line))
                     print(output_line)
+
+                    total_skipped += 1
                     continue
                 
                 input_path  = subgroup_path + input_file
@@ -102,6 +109,7 @@ def main():
                 should_fail = input_file[:4] == "fail"
 
                 result = subprocess.run([_BIN, input_path], capture_output=True)
+                total_run += 1
 
                 with open("dummy", "w") as dummy:
                     dummy.write(result.stdout.decode("utf-8") + "\n")
@@ -117,17 +125,31 @@ def main():
                 except subprocess.CalledProcessError:
                     if should_fail and result.returncode in fail_errcodes:
                         passed = True
-                    else:
-                        # failed_inputs.append((input_path, None))
-                        pass
 
                 os.system("rm dummy")
-
+                if passed:
+                    total_passed += 1
+                else:
+                    total_failed += 1
+                
                 output_line += (f"[{GREEN}PASS{RESET}]" if passed else f"[{RED}FAIL{RESET}]").rjust(_RJUST_COLUMN - len(output_line))
                 print(output_line)
 
     with open(_STAGE_FILE, "w") as stage_file:
         stage_file.write(_DEFAULT_COMPILER_STAGES_FILE_CONTENTS)
+
+    # Print results
+    print("=" * 70)
+    print("Test runs finished.")
+    print(f"Passed: \t{GREEN}{total_passed}{RESET}")
+    print(f"Failed: \t{RED}{total_failed}{RESET}")
+    print(f"Skipped: \t{GRAY}{total_skipped}{RESET}")
+    print(f"Total: \t\t{GRAY}{total_run}{RESET}")
+
+    if total_failed > 0:
+        exit(1)
+    else:
+        exit(0)
 
 if __name__ == "__main__":
     main()
