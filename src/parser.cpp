@@ -428,7 +428,6 @@ StmtNode_p parse_return_stmt(std::deque<std::shared_ptr<Token>> &tokens) {
 #endif
 #endif
 #endif
-
   }
 
   expect_token_type(TokenType::Semicolon, tokens);
@@ -442,7 +441,6 @@ StmtNode_p parse_if_stmt(std::deque<std::shared_ptr<Token>> &tokens) {
   auto tok = expect_token_type(TokenType::KeywordIf, tokens);
   // Should parentheses be optional?
   ExpNode_p cond = parse_exp(tokens);
-
 
 #ifdef COMPILE_STAGE_LEXER
 #ifdef COMPILE_STAGE_PARSER
@@ -690,14 +688,4 @@ parse_stmts(std::deque<std::shared_ptr<Token>> &tokens) {
     stmts.push_back(parse_stmt(tokens));
   }
   return stmts;
-
-#ifdef COMPILE_STAGE_LEXER
-#ifdef COMPILE_STAGE_PARSER
-#ifndef COMPILE_STAGE_SYMBOL_RESOLVER
-#ifndef COMPILE_STAGE_TYPE_CHECKER
-std::cout <<"AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA\n";
-#endif
-#endif
-#endif
-#endif
 }
