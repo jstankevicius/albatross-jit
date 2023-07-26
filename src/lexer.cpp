@@ -138,81 +138,63 @@ std::shared_ptr<Token> get_numeric_literal(ProgramText &t) {
   token->col_num = t.col_num;
   token->line_num = t.line_num;
   token->stream = &t.stream;
+  token->type = TokenType::IntLiteral;
   std::string num_literal;
-  bool is_float_literal = false;
+
+  // Check the type of integer:
+  // 0x -> hex
+  // 0  -> octal
+  // everything else -> decimal
+  int base = -1;
 
   if (t.cur_char() == '0') {
     if (t.peek() == 'x') {
-      num_literal += t.next();
-      num_literal += t.next();
-
       // Hexadecimal
-      while (is_numeric(t.cur_char()) || ('A' <= std::toupper(t.cur_char()) &&
-                                          std::toupper(t.cur_char()) <= 'F')) {
-        num_literal += t.next();
-        while (t.cur_char() == '_')
-          t.advance_char();
-      }
-      try {
-        num_literal = std::to_string(std::stoi(num_literal, 0, 16));
-      } catch (std::out_of_range &e) {
-        throw AlbatrossError("Integer out of range: " + num_literal, t.line_num,
-                             t.col_num, EXIT_LEXER_FAILURE);
-      }
-      token->string_value = num_literal;
-      token->type = TokenType::IntLiteral;
-
-      return token;
-
-    } else {
+      base = 16;
+      t.advance_char();
+      t.advance_char();
+    }
+    else {
       // Octal
-      num_literal += t.next();
+      base = 8;
+    }
+  } else {
+    // Decimal
+    base = 10;
+  }
 
-      while ('0' <= t.cur_char() && t.cur_char() <= '7') {
-        num_literal += t.next();
-        while (t.cur_char() == '_')
-          t.advance_char();
-      }
-      try {
-        num_literal = std::to_string(std::stoi(num_literal, 0, 8));
-      } catch (std::out_of_range &e) {
-        throw AlbatrossError("Integer out of range: " + num_literal, t.line_num,
-                             t.col_num, EXIT_LEXER_FAILURE);
-      }
-      token->string_value = num_literal;
-      token->type = TokenType::IntLiteral;
+  if (t.cur_char() == '_') {
+    throw AlbatrossError("Illegal int literal " + num_literal, t.line_num, t.col_num, EXIT_LEXER_FAILURE);
+  }
 
-      return token;
+  while (is_alphanumeric(t.cur_char())) {
+    // Check, depending on the base, for illegal digits:
+    char c = std::toupper(t.cur_char());
+    if ((base == 8 && !('0' <= c && c <= '7'))
+    || (base == 10 && !('0' <= c && c <= '9'))
+    || (base == 16 && !(('0' <= c && c <= '9') || ('A' <= c && c <= 'F')))) {
+      throw AlbatrossError("Illegal digit for int of base " + std::to_string(base), t.line_num, t.col_num, EXIT_LEXER_FAILURE);
+    }
+
+    num_literal += t.next();
+
+    // Skip underscores
+    while (t.cur_char() == '_') {
+      t.advance_char();
     }
   }
 
-  while (is_numeric(t.cur_char())) {
-    num_literal += t.next();
-
-    while (t.cur_char() == '_')
-      t.advance_char();
+  try { 
+    num_literal = std::to_string(std::stoi(num_literal, 0, base));
   }
 
-  // Next character could potentially be a '.', which would make this a float
-  // literal.
-  if (t.cur_char() == '.' && is_numeric(t.peek())) {
-    is_float_literal = true;
-    num_literal += t.next();
+  catch (std::invalid_argument &e) {
+    throw AlbatrossError("Illegal int literal " + num_literal, t.line_num, t.col_num, EXIT_LEXER_FAILURE);
   }
-
-  else if (t.cur_char() == '.' && !is_numeric(t.peek())) {
-    throw AlbatrossError("decimals in the form of 'x.' are not allowed",
-                         t.line_num, t.col_num, EXIT_LEXER_FAILURE);
+  catch (std::out_of_range &e) {
+    throw AlbatrossError("Int " + num_literal + " is out of range", t.line_num, t.col_num, EXIT_LEXER_FAILURE);
   }
-
-  // Add the decimal part, if it exists.
-  while (is_numeric(t.cur_char())) {
-    num_literal += t.next();
-  }
-
   token->string_value = num_literal;
-  token->type =
-      is_float_literal ? TokenType::FloatLiteral : TokenType::IntLiteral;
 
   return token;
 }
@@ -302,6 +284,14 @@ std::shared_ptr<Token> get_string_literal(ProgramText &t) {
         t.advance_char();
         continue;
       }
+
+      else {
+        throw AlbatrossError("Invalid escape sequence", t.line_num, t.col_num,
+                             EXIT_LEXER_FAILURE);
+      }
+    } else if (t.cur_char() == '\n') {
+      throw AlbatrossError("no matching quote", t.line_num, t.col_num,
+                           EXIT_LEXER_FAILURE);
     }
 
     str_literal += t.next();
@@ -485,8 +475,7 @@ std::deque<std::shared_ptr<Token>> tokenize(ProgramText &t) {
       tokens.push_back(get_punctuation(t));
     }
 
-    else if (is_alpha(t.cur_char()) ||
-             (t.cur_char() == '_' && is_alpha(t.peek()))) {
+    else if (is_alpha(t.cur_char())) {
       tokens.push_back(get_symbol(t));
     }
 
