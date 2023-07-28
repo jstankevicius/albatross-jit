@@ -28,7 +28,7 @@ _DEFAULT_COMPILER_STAGES_FILE_CONTENTS = """// DO NOT EDIT MANUALLY.
 _COMPAT_TEST_CONFIGS = [
     ("tests/lexer-tests",    _STAGE_FLAGS[:1], [201]),
     ("tests/parser-tests",   _STAGE_FLAGS[:2], [202]),
-    # ("tests/semantic-tests", _STAGE_FLAGS[:4], [203, 204]),
+    ("tests/semantic-tests", _STAGE_FLAGS[:4], [203, 204]),
 ]
 
 _SKIP = {
@@ -108,8 +108,8 @@ def main():
                 passed      = False
                 should_fail = input_file[:4] == "fail"
 
-                result = subprocess.run([_BIN, input_path], capture_output=True)
-                total_run += 1
+                result      = subprocess.run([_BIN, input_path], capture_output=True)
+                total_run  += 1
 
                 with open("dummy", "w") as dummy:
                     dummy.write(result.stdout.decode("utf-8") + "\n")
@@ -118,7 +118,7 @@ def main():
                     result.check_returncode()
                     if output_file is not None:
                         # Compare output
-                        cmd = f"diff -B {subgroup_path + output_file} dummy"
+                        cmd = f"diff -B {subgroup_path + output_file} dummy > /dev/null"
                         subprocess.check_call(cmd, shell=True, executable="/bin/bash")
                         passed = True
 

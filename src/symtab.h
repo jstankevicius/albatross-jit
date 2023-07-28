@@ -90,16 +90,12 @@ typedef struct SymbolTable {
 
   inline void add_symbol(std::string &sym_name, Type sym_type) {
     cur_scope()->add_symbol(sym_name, VarInfo{sym_type, var_idx_db});
-    printf("Added symbol %s w/ DBI %d in scope %ld\n", sym_name.c_str(),
-           var_idx_db, scopes.size());
     ++var_idx_db;
   }
 
   inline void add_function(std::string &fun_name, Type ret_type,
                            std::vector<TypeNode> params) {
     cur_scope()->add_function(fun_name, FunInfo{ret_type, fun_idx, params});
-    printf("Added function %s w/ index %d in scope %ld\n", fun_name.c_str(),
-           fun_idx, scopes.size());
     ++fun_idx;
   }
 

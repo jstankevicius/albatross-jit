@@ -5,7 +5,6 @@
 void resolve_exp(ExpNode_p exp, SymbolTable &st) {
   switch (exp->kind) {
   case ExpNode::IntExp:
-    printf("resolving an int\n");
     return;
   case ExpNode::StringExp:
     return;
@@ -23,9 +22,6 @@ void resolve_exp(ExpNode_p exp, SymbolTable &st) {
 
     // Otherwise, update this var node with the type and index.
     ops.var_info = res;
-    printf("VarExp: symbol %s resolves to DBI %d and type %s\n",
-           ops.name.c_str(), res.value().var_idx_db,
-           type_to_str(ops.var_info.value().var_type).c_str());
     return;
   }
   case ExpNode::BinopExp: {
@@ -60,7 +56,6 @@ void resolve_exp(ExpNode_p exp, SymbolTable &st) {
 }
 
 inline void resolve_stmt(StmtNode_p stmt, SymbolTable &st) {
-  printf("resolving stmt %d\n", stmt->kind);
   switch (stmt->kind) {
   case StmtNode::VardeclStmt: {
     auto &ops = stmt->vardecl_ops();
@@ -173,7 +168,6 @@ inline void resolve_stmt(StmtNode_p stmt, SymbolTable &st) {
 
 void resolve_stmts(std::vector<StmtNode_p> &stmts, SymbolTable &st) {
   for (auto stmt : stmts) {
-    printf("%lu\n", stmt->data.index());
     resolve_stmt(stmt, st);
   }
 }

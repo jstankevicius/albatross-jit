@@ -1,5 +1,6 @@
 #include "typecheck.h"
 #include "error.h"
+#include "compiler_stages.h"
 
 #include <iostream>
 
@@ -16,7 +17,18 @@ Type typecheck_exp(ExpNode_p exp) {
     return StringType;
   }
   case ExpNode::VarExp: {
-    return exp->var_ops().var_info.value().var_type;
+    auto& ops = exp->var_ops();
+    Type type = ops.var_info.value().var_type;
+#ifdef COMPILE_STAGE_LEXER
+#ifdef COMPILE_STAGE_PARSER
+#ifdef COMPILE_STAGE_SYMBOL_RESOLVER
+#ifdef COMPILE_STAGE_TYPE_CHECKER
+    std::cout << "Variable read \"" << ops.name << "\" type " << type_to_str(type) << "\n";
+#endif
+#endif
+#endif
+#endif
+    return type;
   }
   case ExpNode::BinopExp: {
     auto &ops = exp->bin_ops();
@@ -83,7 +95,6 @@ void typecheck_stmt(StmtNode_p stmt,
     return;
   }
   case StmtNode::VardeclStmt: {
-    printf("typechecking vardecl\n");
     auto &ops = stmt->vardecl_ops();
     Type type_lhs = ops.type;
     Type type_rhs = typecheck_exp(ops.rhs);
@@ -92,6 +103,16 @@ void typecheck_stmt(StmtNode_p stmt,
                            stmt->line_num, stmt->col_num,
                            EXIT_TYPECHECK_FAILURE);
     }
+
+#ifdef COMPILE_STAGE_LEXER
+#ifdef COMPILE_STAGE_PARSER
+#ifdef COMPILE_STAGE_SYMBOL_RESOLVER
+#ifdef COMPILE_STAGE_TYPE_CHECKER
+    std::cout << "Variable declared \"" << ops.lhs << "\" type " << type_to_str(type_lhs) << "\n";
+#endif
+#endif
+#endif
+#endif
     return;
   }
   case StmtNode::IfStmt: {
@@ -121,9 +142,7 @@ void typecheck_stmt(StmtNode_p stmt,
     return;
   }
   case StmtNode::RetStmt: {
-    Type ret_exp_type = stmt->ret_ops().ret_exp.get() != nullptr
-                            ? typecheck_exp(stmt->ret_ops().ret_exp)
-                            : VoidType;
+    Type ret_exp_type = stmt->ret_ops().ret_exp.get() != nullptr ? typecheck_exp(stmt->ret_ops().ret_exp) : VoidType;
 
     if (fun_ret_type && fun_ret_type.value() != ret_exp_type) {
       throw AlbatrossError("Return statement does not return type specified in "
@@ -147,7 +166,6 @@ void typecheck_stmt(StmtNode_p stmt,
 void typecheck_stmts(std::vector<StmtNode_p> &stmts,
                      std::optional<Type> fun_ret_type) {
   for (auto stmt : stmts) {
-    printf("Typechecking stmt\n");
     typecheck_stmt(stmt, fun_ret_type);
   }
 }
