@@ -145,8 +145,6 @@ inline void resolve_stmt(StmtNode_p stmt, SymbolTable &st) {
 
     // Add parameters into the scope of the function body.
     for (auto p : ops.params) {
-      // TODO: p.name_token->string_value is a bad way to access the parameter
-      // name.
       st.add_symbol(p.name, p.type);
     }
 
