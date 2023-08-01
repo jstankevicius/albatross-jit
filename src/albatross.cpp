@@ -40,10 +40,13 @@ int main(int argc, char *argv[]) {
     auto stmts = parse_stmts(tokens);
 
 #ifdef COMPILE_STAGE_SYMBOL_RESOLVER
-    SymbolTable st;
-    st.enter_scope();
-    resolve_stmts(stmts, st);
+    SymbolTable<VarInfo> vars;
+    SymbolTable<FunInfo> functions;
 
+    functions.enter_scope();
+    vars.enter_scope();
+
+    resolve_stmts(stmts, vars, functions);
 #ifdef COMPILE_STAGE_TYPE_CHECKER
     typecheck_stmts(stmts);
 #endif
