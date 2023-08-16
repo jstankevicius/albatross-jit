@@ -31,7 +31,7 @@ INC_FLAGS := $(addprefix -I,$(INC_DIRS))
 
 # The -MMD and -MP flags together generate Makefiles for us!
 # These files will have .d instead of .o as the output.
-CPPFLAGS := $(INC_FLAGS) -MMD -Wall -Wextra -Werror -Wimplicit-fallthrough -MP -std=c++20 
+CPPFLAGS := $(INC_FLAGS) -MMD -Wall -Wextra -Wimplicit-fallthrough -MP -std=c++20 -O2 -march=native
 
 all: $(BUILD_DIR)/$(MAIN_BINARY)
 
