@@ -30,4 +30,5 @@ struct ProgramText {
         void skip_whitespace();
 };
 
-std::deque<std::shared_ptr<Token>> tokenize(ProgramText &t);
+std::deque<std::shared_ptr<Token>>
+tokenize(ProgramText &t);

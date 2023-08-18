@@ -7,7 +7,8 @@
 char const *RED_BEGIN = "\033[1;31m";
 char const *RED_END   = "\033[0m";
 
-static std::vector<std::string> split_string(const std::string &str)
+static std::vector<std::string>
+split_string(const std::string &str)
 {
         std::vector<std::string> tokens;
 
@@ -20,10 +21,11 @@ static std::vector<std::string> split_string(const std::string &str)
         return tokens;
 }
 
-void print_err(const std::string &src,
-               int                line_num,
-               int                col_num,
-               const std::string &message)
+void
+print_err(const std::string &src,
+          int                line_num,
+          int                col_num,
+          const std::string &message)
 {
         assert(line_num > 0);
         assert(col_num > 0);

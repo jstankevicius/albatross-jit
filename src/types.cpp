@@ -1,6 +1,7 @@
 #include "types.h"
 
-Type str_to_type(std::string &type_str)
+Type
+str_to_type(std::string &type_str)
 {
         if (type_str == "int")
                 return Type::IntType;
@@ -16,7 +17,8 @@ Type str_to_type(std::string &type_str)
         }
 }
 
-std::string type_to_str(Type type)
+std::string
+type_to_str(Type type)
 {
         switch (type) {
         case Type::IntType: return "int";

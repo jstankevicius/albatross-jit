@@ -9,27 +9,32 @@
 #include "compiler_stages.h"
 #include "error.h"
 
-inline bool is_alpha(char c)
+inline bool
+is_alpha(char c)
 {
         return ('A' <= c && c <= 'Z') || ('a' <= c && c <= 'z');
 }
 
-inline bool is_numeric(char c)
+inline bool
+is_numeric(char c)
 {
         return '0' <= c && c <= '9';
 }
 
-inline bool is_whitespace(char c)
+inline bool
+is_whitespace(char c)
 {
         return c == ' ' || c == '\t' || c == '\n' || c == '\r';
 }
 
-inline bool is_alphanumeric(char c)
+inline bool
+is_alphanumeric(char c)
 {
         return is_numeric(c) || is_alpha(c);
 }
 
-inline bool is_punctuation(char c)
+inline bool
+is_punctuation(char c)
 {
         return c == '(' || c == ')' || c == '[' || c == ']' || c == '{'
                || c == '}' || c == ';' || c == ',';
@@ -37,14 +42,16 @@ inline bool is_punctuation(char c)
 
 // Returns whether the lexer has processed the entire stream. This happens when
 // idx is pushed beyond the length of the actual stream.
-inline bool ProgramText::done()
+inline bool
+ProgramText::done()
 {
         return idx >= stream.length();
 }
 
 // If the stream is not done, returns the character at stream_idx. Otherwise,
 // returns -1 (an invalid character).
-char ProgramText::cur_char()
+char
+ProgramText::cur_char()
 {
         if (!done()) {
                 return stream[idx];
@@ -56,7 +63,8 @@ char ProgramText::cur_char()
 // Peeks at the character directly after current character of the ProgramText.
 // If reading this character would cause an out-of-bounds violation (i.e. there
 // are no more characters left), returns -1.
-char ProgramText::peek()
+char
+ProgramText::peek()
 {
         if (idx + 1 < stream.length()) {
                 return stream[idx + 1];
@@ -70,7 +78,8 @@ char ProgramText::peek()
 // number. If idx ends on a newline sequence (i.e. the character \n or the
 // sequence \r\n), advance_char() skips over the newline and adjusts the line
 // and column numbers accordingly.
-void ProgramText::advance_char()
+void
+ProgramText::advance_char()
 {
         char cur = cur_char();
 
@@ -87,7 +96,8 @@ void ProgramText::advance_char()
         }
 }
 
-char ProgramText::next()
+char
+ProgramText::next()
 {
         char c = cur_char();
         advance_char();
@@ -96,7 +106,8 @@ char ProgramText::next()
 
 // Skips over whitespace characters until a non-whitespace character is
 // encountered.
-void ProgramText::skip_whitespace()
+void
+ProgramText::skip_whitespace()
 {
         while (is_whitespace(cur_char())) {
                 advance_char();
@@ -106,7 +117,8 @@ void ProgramText::skip_whitespace()
 // Returns a token that is not a literal. These can be tokens like "+", ">=",
 // "variable-name", etc. The lexer does not validate the names of the tokens, as
 // that is done later.
-std::shared_ptr<Token> get_symbol(ProgramText &t)
+std::shared_ptr<Token>
+get_symbol(ProgramText &t)
 {
         static std::unordered_map<std::string, TokenType> keyword_map;
         if (keyword_map.empty()) {
@@ -150,7 +162,8 @@ std::shared_ptr<Token> get_symbol(ProgramText &t)
 
 // Returns a token for a numeric literal (like 123, 3.14, or their negative
 // counterparts).
-std::shared_ptr<Token> get_numeric_literal(ProgramText &t)
+std::shared_ptr<Token>
+get_numeric_literal(ProgramText &t)
 {
         auto token      = std::make_shared<Token>();
         token->col_num  = t.col_num;
@@ -182,7 +195,9 @@ std::shared_ptr<Token> get_numeric_literal(ProgramText &t)
 
         if (t.cur_char() == '_') {
                 throw AlbatrossError("Illegal int literal " + num_literal,
-                                     t.line_num, t.col_num, EXIT_LEXER_FAILURE);
+                                     t.line_num,
+                                     t.col_num,
+                                     EXIT_LEXER_FAILURE);
         }
 
         while (is_alphanumeric(t.cur_char())) {
@@ -195,7 +210,8 @@ std::shared_ptr<Token> get_numeric_literal(ProgramText &t)
                              || ('A' <= c && c <= 'F')))) {
                         throw AlbatrossError("Illegal digit for int of base "
                                                      + std::to_string(base),
-                                             t.line_num, t.col_num,
+                                             t.line_num,
+                                             t.col_num,
                                              EXIT_LEXER_FAILURE);
                 }
 
@@ -213,10 +229,14 @@ std::shared_ptr<Token> get_numeric_literal(ProgramText &t)
 
         catch (std::invalid_argument &e) {
                 throw AlbatrossError("Illegal int literal " + num_literal,
-                                     t.line_num, t.col_num, EXIT_LEXER_FAILURE);
+                                     t.line_num,
+                                     t.col_num,
+                                     EXIT_LEXER_FAILURE);
         } catch (std::out_of_range &e) {
                 throw AlbatrossError("Int " + num_literal + " is out of range",
-                                     t.line_num, t.col_num, EXIT_LEXER_FAILURE);
+                                     t.line_num,
+                                     t.col_num,
+                                     EXIT_LEXER_FAILURE);
         }
         token->string_value = num_literal;
 
@@ -225,7 +245,8 @@ std::shared_ptr<Token> get_numeric_literal(ProgramText &t)
 
 // Returns a token for "punctuation". This is a catch-all term for tokens that
 // are not symbols or literals.
-std::shared_ptr<Token> get_punctuation(ProgramText &t)
+std::shared_ptr<Token>
+get_punctuation(ProgramText &t)
 {
         auto token      = std::make_shared<Token>();
         token->col_num  = t.col_num;
@@ -244,15 +265,18 @@ std::shared_ptr<Token> get_punctuation(ProgramText &t)
         case ';': token->type = TokenType::Semicolon; break;
         case ',': token->type = TokenType::Comma; break;
         default:
-                throw AlbatrossError("unrecognized character", t.line_num,
-                                     t.col_num, EXIT_LEXER_FAILURE);
+                throw AlbatrossError("unrecognized character",
+                                     t.line_num,
+                                     t.col_num,
+                                     EXIT_LEXER_FAILURE);
         }
 
         t.advance_char();
         return token;
 }
 
-std::shared_ptr<Token> get_string_literal(ProgramText &t)
+std::shared_ptr<Token>
+get_string_literal(ProgramText &t)
 {
         auto token      = std::make_shared<Token>();
         token->col_num  = t.col_num;
@@ -296,12 +320,15 @@ std::shared_ptr<Token> get_string_literal(ProgramText &t)
 
                         else {
                                 throw AlbatrossError("Invalid escape sequence",
-                                                     t.line_num, t.col_num,
+                                                     t.line_num,
+                                                     t.col_num,
                                                      EXIT_LEXER_FAILURE);
                         }
                 } else if (t.cur_char() == '\n') {
-                        throw AlbatrossError("no matching quote", t.line_num,
-                                             t.col_num, EXIT_LEXER_FAILURE);
+                        throw AlbatrossError("no matching quote",
+                                             t.line_num,
+                                             t.col_num,
+                                             EXIT_LEXER_FAILURE);
                 }
 
                 str_literal += t.next();
@@ -315,7 +342,9 @@ std::shared_ptr<Token> get_string_literal(ProgramText &t)
 
         else {
                 // No matching quote
-                throw AlbatrossError("no matching quote", t.line_num, t.col_num,
+                throw AlbatrossError("no matching quote",
+                                     t.line_num,
+                                     t.col_num,
                                      EXIT_LEXER_FAILURE);
         }
 
@@ -325,7 +354,8 @@ std::shared_ptr<Token> get_string_literal(ProgramText &t)
         return token;
 }
 
-std::shared_ptr<Token> get_operator(ProgramText &t)
+std::shared_ptr<Token>
+get_operator(ProgramText &t)
 {
         auto token      = std::make_shared<Token>();
         token->col_num  = t.col_num;
@@ -421,7 +451,8 @@ std::shared_ptr<Token> get_operator(ProgramText &t)
                         break;
                 } else {
                         throw AlbatrossError("unrecognized character",
-                                             t.line_num, t.col_num,
+                                             t.line_num,
+                                             t.col_num,
                                              EXIT_LEXER_FAILURE);
                 }
         }
@@ -433,13 +464,16 @@ std::shared_ptr<Token> get_operator(ProgramText &t)
                         break;
                 } else {
                         throw AlbatrossError("unrecognized character",
-                                             t.line_num, t.col_num,
+                                             t.line_num,
+                                             t.col_num,
                                              EXIT_LEXER_FAILURE);
                 }
         }
         default: {
-                throw AlbatrossError("unrecognized character", t.line_num,
-                                     t.col_num, EXIT_LEXER_FAILURE);
+                throw AlbatrossError("unrecognized character",
+                                     t.line_num,
+                                     t.col_num,
+                                     EXIT_LEXER_FAILURE);
         }
         }
 
@@ -447,7 +481,8 @@ std::shared_ptr<Token> get_operator(ProgramText &t)
 }
 
 // Tokenizes the string in a ProgramText into a token list.
-std::deque<std::shared_ptr<Token>> tokenize(ProgramText &t)
+std::deque<std::shared_ptr<Token>>
+tokenize(ProgramText &t)
 {
         std::deque<std::shared_ptr<Token>> tokens;
 
@@ -578,7 +613,9 @@ std::deque<std::shared_ptr<Token>> tokenize(ProgramText &t)
                                 "Bad token: "
                                         + std::to_string(token->string_value)
                                         + "\n",
-                                token->line_num, token->col_num, EXIT_FAILURE);
+                                token->line_num,
+                                token->col_num,
+                                EXIT_FAILURE);
                 }
                 std::cout << "\n";
         }

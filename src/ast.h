@@ -39,28 +39,26 @@ typedef enum {
         OpSub
 } Operator;
 
-typedef struct TypeNode {
+typedef struct {
         std::string name;
         Type        type;
-} TypeNode;
+} ParamNode;
 
-typedef struct VarInfo {
+typedef struct {
         Type var_type;
         int  var_idx;
 } VarInfo;
 
-typedef struct FunInfo {
-        Type ret_type;
-        int  var_idx_db;
-
-        std::vector<TypeNode> params;
+typedef struct {
+        Type                   ret_type;
+        int                    var_idx_db;
+        std::vector<ParamNode> params;
 } FunInfo;
 
 typedef struct ExpNode {
         int line_num = -1;
         int col_num  = -1;
 
-        // The first three are terminals, the last two are nonterminals.
         enum ExpKind {
                 IntExp,
                 StringExp,
@@ -179,7 +177,7 @@ typedef struct StmtNode {
         typedef struct {
                 std::string                            name;
                 Type                                   ret_type;
-                std::vector<TypeNode>                  params;
+                std::vector<ParamNode>                 params;
                 std::vector<std::shared_ptr<StmtNode>> body;
         } FundecOps;
 
@@ -233,49 +231,59 @@ typedef struct StmtNode {
         }
 } StmtNode;
 
-using StmtNode_p = std::shared_ptr<StmtNode>;
-using ExpNode_p  = std::shared_ptr<ExpNode>;
-using StmtOps    = std::variant<StmtNode::VardeclOps,
-                             StmtNode::AssignOps,
-                             StmtNode::IfOps,
-                             StmtNode::WhileOps,
-                             StmtNode::RepeatOps,
-                             StmtNode::CallOps,
-                             StmtNode::FundecOps,
-                             StmtNode::RetOps>;
-using ExpOps     = std::variant<int,
-                            std::string,
-                            ExpNode::BinOps,
-                            ExpNode::UnOps,
-                            ExpNode::CallOps,
-                            ExpNode::VarOps>;
+std::shared_ptr<ExpNode>
+new_int_exp_node(int ival);
 
-ExpNode_p new_int_exp_node(int ival);
-ExpNode_p new_unop_exp_node(Operator op, ExpNode_p e);
-ExpNode_p new_binop_exp_node(Operator op, ExpNode_p lhs, ExpNode_p rhs);
-ExpNode_p new_var_exp_node(std::string name);
-ExpNode_p new_str_exp_node(std::string str);
-ExpNode_p new_call_exp_node(std::string name, std::vector<ExpNode_p> &args);
+std::shared_ptr<ExpNode>
+new_unop_exp_node(Operator op, std::shared_ptr<ExpNode> e);
 
-StmtNode_p new_assign_stmt_node(ExpNode_p lhs, ExpNode_p rhs);
+std::shared_ptr<ExpNode>
+new_binop_exp_node(Operator                 op,
+                   std::shared_ptr<ExpNode> lhs,
+                   std::shared_ptr<ExpNode> rhs);
 
-StmtNode_p new_if_stmt_node(ExpNode_p                cond,
-                            std::vector<StmtNode_p> &then_stmts,
-                            std::vector<StmtNode_p> &else_stmts);
+std::shared_ptr<ExpNode>
+new_var_exp_node(std::string name);
 
-StmtNode_p new_while_stmt_node(ExpNode_p                cond,
-                               std::vector<StmtNode_p> &body_stmts,
-                               std::vector<StmtNode_p> &otherwise_stmts);
-StmtNode_p new_return_stmt_node(ExpNode_p ret_exp);
+std::shared_ptr<ExpNode>
+new_str_exp_node(std::string str);
 
-StmtNode_p new_repeat_stmt_node(ExpNode_p                cond,
-                                std::vector<StmtNode_p> &body_stmts);
+std::shared_ptr<ExpNode>
+new_call_exp_node(std::string                            name,
+                  std::vector<std::shared_ptr<ExpNode>> &args);
 
-StmtNode_p new_fundec_stmt_node(std::string             fun_name,
-                                Type                    ret_type,
-                                std::vector<TypeNode>  &params,
-                                std::vector<StmtNode_p> body);
+std::shared_ptr<StmtNode>
+new_assign_stmt_node(std::shared_ptr<ExpNode> lhs,
+                     std::shared_ptr<ExpNode> rhs);
 
-StmtNode_p new_vardecl_stmt_node(std::string name, Type type, ExpNode_p rhs);
+std::shared_ptr<StmtNode>
+new_if_stmt_node(std::shared_ptr<ExpNode>                cond,
+                 std::vector<std::shared_ptr<StmtNode>> &then_stmts,
+                 std::vector<std::shared_ptr<StmtNode>> &else_stmts);
 
-StmtNode_p new_call_stmt_node(std::string name, std::vector<ExpNode_p> args);
+std::shared_ptr<StmtNode>
+new_while_stmt_node(std::shared_ptr<ExpNode>                cond,
+                    std::vector<std::shared_ptr<StmtNode>> &body_stmts,
+                    std::vector<std::shared_ptr<StmtNode>> &otherwise_stmts);
+
+std::shared_ptr<StmtNode>
+new_return_stmt_node(std::shared_ptr<ExpNode> ret_exp);
+
+std::shared_ptr<StmtNode>
+new_repeat_stmt_node(std::shared_ptr<ExpNode>                cond,
+                     std::vector<std::shared_ptr<StmtNode>> &body_stmts);
+
+std::shared_ptr<StmtNode>
+new_fundec_stmt_node(std::string                            fun_name,
+                     Type                                   ret_type,
+                     std::vector<ParamNode>                &params,
+                     std::vector<std::shared_ptr<StmtNode>> body);
+
+std::shared_ptr<StmtNode>
+new_vardecl_stmt_node(std::string              name,
+                      Type                     type,
+                      std::shared_ptr<ExpNode> rhs);
+
+std::shared_ptr<StmtNode>
+new_call_stmt_node(std::string                           name,
+                   std::vector<std::shared_ptr<ExpNode>> args);

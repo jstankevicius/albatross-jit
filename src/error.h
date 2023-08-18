@@ -40,7 +40,8 @@ class AlbatrossError : public std::runtime_error {
         }
 };
 
-void print_err(const std::string &src,
-               int                line_num,
-               int                col_num,
-               const std::string &message);
+void
+print_err(const std::string &src,
+          int                line_num,
+          int                col_num,
+          const std::string &message);

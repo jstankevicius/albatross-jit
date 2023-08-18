@@ -11,7 +11,8 @@
 #include "symres.h"
 #include "typecheck.h"
 
-int main(int argc, char *argv[])
+int
+main(int argc, char *argv[])
 {
         if (argc < 2) {
                 // This should just switch to interactive mode

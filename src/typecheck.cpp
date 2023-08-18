@@ -4,7 +4,8 @@
 
 #include <iostream>
 
-Type typecheck_exp(ExpNode_p exp)
+Type
+typecheck_exp(std::shared_ptr<ExpNode> exp)
 {
         // TODO: This is hacky.
         if (exp.get() == nullptr) {
@@ -41,7 +42,8 @@ Type typecheck_exp(ExpNode_p exp)
                 // TODO: Stricter typechecks here
                 if (type_lhs != type_rhs) {
                         throw AlbatrossError("Mismatched types in binop",
-                                             exp->line_num, exp->col_num,
+                                             exp->line_num,
+                                             exp->col_num,
                                              EXIT_TYPECHECK_FAILURE);
                 }
                 return type_lhs;
@@ -75,7 +77,8 @@ Type typecheck_exp(ExpNode_p exp)
                                         + ops.name + ": expected "
                                         + std::to_string(n_params) + ", got "
                                         + std::to_string(n_args),
-                                exp->line_num, exp->col_num,
+                                exp->line_num,
+                                exp->col_num,
                                 EXIT_TYPECHECK_FAILURE);
                 }
                 for (int i = 0; i < n_params; i++) {
@@ -89,7 +92,8 @@ Type typecheck_exp(ExpNode_p exp)
                                                 + info.params[i].name
                                                 + ", position "
                                                 + std::to_string(i),
-                                        exp->line_num, exp->col_num,
+                                        exp->line_num,
+                                        exp->col_num,
                                         EXIT_TYPECHECK_FAILURE);
                         }
                 }
@@ -98,8 +102,9 @@ Type typecheck_exp(ExpNode_p exp)
         }
 }
 
-void typecheck_stmt(StmtNode_p          stmt,
-                    std::optional<Type> fun_ret_type = std::nullopt)
+void
+typecheck_stmt(std::shared_ptr<StmtNode> stmt,
+               std::optional<Type>       fun_ret_type = std::nullopt)
 {
         switch (stmt->kind) {
         case StmtNode::AssignStmt: {
@@ -112,7 +117,8 @@ void typecheck_stmt(StmtNode_p          stmt,
 
                 if (type_lhs != type_rhs) {
                         throw AlbatrossError("Mismatched types in assignment",
-                                             stmt->line_num, stmt->col_num,
+                                             stmt->line_num,
+                                             stmt->col_num,
                                              EXIT_TYPECHECK_FAILURE);
                 }
                 return;
@@ -124,7 +130,8 @@ void typecheck_stmt(StmtNode_p          stmt,
                 if (type_lhs != type_rhs) {
                         throw AlbatrossError(
                                 "Mismatched types in variable declaration",
-                                stmt->line_num, stmt->col_num,
+                                stmt->line_num,
+                                stmt->col_num,
                                 EXIT_TYPECHECK_FAILURE);
                 }
 #ifdef COMPILE_STAGE_LEXER
@@ -186,7 +193,8 @@ void typecheck_stmt(StmtNode_p          stmt,
                                         + ops.name + ": expected "
                                         + std::to_string(n_params) + ", got "
                                         + std::to_string(n_args),
-                                stmt->line_num, stmt->col_num,
+                                stmt->line_num,
+                                stmt->col_num,
                                 EXIT_TYPECHECK_FAILURE);
                 }
                 for (int i = 0; i < n_params; i++) {
@@ -200,7 +208,8 @@ void typecheck_stmt(StmtNode_p          stmt,
                                                 + info.params[i].name
                                                 + ", position "
                                                 + std::to_string(i),
-                                        stmt->line_num, stmt->col_num,
+                                        stmt->line_num,
+                                        stmt->col_num,
                                         EXIT_TYPECHECK_FAILURE);
                         }
                 }
@@ -220,7 +229,8 @@ void typecheck_stmt(StmtNode_p          stmt,
                         throw AlbatrossError(
                                 "Return statement does not return type specified in "
                                 "function declaration.",
-                                stmt->line_num, stmt->col_num,
+                                stmt->line_num,
+                                stmt->col_num,
                                 EXIT_TYPECHECK_FAILURE);
                 }
                 // If the above check fails, we are in the global scope and can return only
@@ -230,7 +240,8 @@ void typecheck_stmt(StmtNode_p          stmt,
                                 "Return expression in global scope must be of type "
                                 "'int', but got '"
                                         + type_to_str(ret_exp_type) + "\'",
-                                stmt->line_num, stmt->col_num,
+                                stmt->line_num,
+                                stmt->col_num,
                                 EXIT_TYPECHECK_FAILURE);
                 }
                 return;
@@ -254,8 +265,9 @@ void typecheck_stmt(StmtNode_p          stmt,
         }
 }
 
-void typecheck_stmts(std::vector<StmtNode_p> &stmts,
-                     std::optional<Type>      fun_ret_type)
+void
+typecheck_stmts(std::vector<std::shared_ptr<StmtNode>> &stmts,
+                std::optional<Type>                     fun_ret_type)
 {
         for (auto stmt : stmts) {
                 typecheck_stmt(stmt, fun_ret_type);

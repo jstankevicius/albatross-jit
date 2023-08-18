@@ -2,9 +2,10 @@
 #include "ast.h"
 #include "error.h"
 
-void resolve_exp(ExpNode_p             exp,
-                 SymbolTable<VarInfo> &vars,
-                 SymbolTable<FunInfo> &functions)
+void
+resolve_exp(std::shared_ptr<ExpNode> exp,
+            SymbolTable<VarInfo>    &vars,
+            SymbolTable<FunInfo>    &functions)
 {
         switch (exp->kind) {
         case ExpNode::IntExp: return;
@@ -19,7 +20,8 @@ void resolve_exp(ExpNode_p             exp,
                         // TODO: Better errors:
                         throw AlbatrossError("Could not find symbol "
                                                      + ops.name,
-                                             exp->line_num, exp->col_num,
+                                             exp->line_num,
+                                             exp->col_num,
                                              EXIT_SYMRES_FAILURE);
                 }
 
@@ -44,7 +46,8 @@ void resolve_exp(ExpNode_p             exp,
 
                 if (!res.has_value()) {
                         throw AlbatrossError("Undefined function " + ops.name,
-                                             exp->line_num, exp->col_num,
+                                             exp->line_num,
+                                             exp->col_num,
                                              EXIT_SYMRES_FAILURE);
                 }
 
@@ -59,9 +62,10 @@ void resolve_exp(ExpNode_p             exp,
         }
 }
 
-void resolve_stmt(StmtNode_p            stmt,
-                  SymbolTable<VarInfo> &vars,
-                  SymbolTable<FunInfo> &functions)
+void
+resolve_stmt(std::shared_ptr<StmtNode> stmt,
+             SymbolTable<VarInfo>     &vars,
+             SymbolTable<FunInfo>     &functions)
 {
         switch (stmt->kind) {
         case StmtNode::VardeclStmt: {
@@ -72,7 +76,8 @@ void resolve_stmt(StmtNode_p            stmt,
                 // Check that we are not redeclaring the variable.
                 if (vars.cur_scope()->find_symbol(name)) {
                         throw AlbatrossError("Redefinition of variable " + name,
-                                             stmt->line_num, stmt->col_num,
+                                             stmt->line_num,
+                                             stmt->col_num,
                                              EXIT_SYMRES_FAILURE);
                 }
 
@@ -130,7 +135,8 @@ void resolve_stmt(StmtNode_p            stmt,
 
                 if (!res.has_value()) {
                         throw AlbatrossError("Undefined function " + ops.name,
-                                             stmt->line_num, stmt->col_num,
+                                             stmt->line_num,
+                                             stmt->col_num,
                                              EXIT_SYMRES_FAILURE);
                 }
 
@@ -147,14 +153,15 @@ void resolve_stmt(StmtNode_p            stmt,
                 if (functions.cur_scope()->find_symbol(ops.name)) {
                         throw AlbatrossError("Redefinition of function "
                                                      + ops.name,
-                                             stmt->line_num, stmt->col_num,
+                                             stmt->line_num,
+                                             stmt->col_num,
                                              EXIT_SYMRES_FAILURE);
                 }
 
                 // TODO: Constructing FunInfo this way is bad. Make an actual constructor.
-                functions.add_symbol(ops.name,
-                                     FunInfo{ ops.ret_type, functions.sym_idx,
-                                              ops.params });
+                functions.add_symbol(
+                        ops.name,
+                        FunInfo{ ops.ret_type, functions.sym_idx, ops.params });
                 vars.enter_scope();
 
                 // Add parameters into the scope of the function body.
@@ -179,9 +186,10 @@ void resolve_stmt(StmtNode_p            stmt,
         }
 }
 
-void resolve_stmts(std::vector<StmtNode_p> &stmts,
-                   SymbolTable<VarInfo>    &vars,
-                   SymbolTable<FunInfo>    &functions)
+void
+resolve_stmts(std::vector<std::shared_ptr<StmtNode>> &stmts,
+              SymbolTable<VarInfo>                   &vars,
+              SymbolTable<FunInfo>                   &functions)
 {
         for (auto stmt : stmts) {
                 resolve_stmt(stmt, vars, functions);
