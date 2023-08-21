@@ -609,13 +609,11 @@ tokenize(ProgramText &t)
                         break;
                 }
                 default:
-                        throw AlbatrossError(
-                                "Bad token: "
-                                        + std::to_string(token->string_value)
-                                        + "\n",
-                                token->line_num,
-                                token->col_num,
-                                EXIT_FAILURE);
+                        throw AlbatrossError("Bad token: " + token->string_value
+                                                     + "\n",
+                                             token->line_num,
+                                             token->col_num,
+                                             EXIT_FAILURE);
                 }
                 std::cout << "\n";
         }
