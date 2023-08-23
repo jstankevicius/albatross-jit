@@ -162,7 +162,6 @@ parse_call_exp(std::deque<std::unique_ptr<Token>> &tokens)
         auto name = tok->string_value;
 
         expect_token_type(TokenType::Lparen, tokens);
-        std::vector<std::unique_ptr<ExpNode>> args;
         if (tokens.front()->type != TokenType::Rparen) {
                 while (1) {
                         auto arg = parse_exp(tokens);
