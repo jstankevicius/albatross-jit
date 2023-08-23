@@ -41,7 +41,6 @@ expect_token_type(TokenType type, std::deque<std::unique_ptr<Token>> &tokens)
         }
 
         if (front->type != type) {
-                // TODO: better errors
                 throw AlbatrossError("syntax error: unexpected token '"
                                              + front->string_value + "'",
                                      front->line_num,
@@ -262,8 +261,6 @@ exp_bp(std::deque<std::unique_ptr<Token>> &tokens, int min_bp)
                         // Consume op token
                         auto tok = expect_any_token(tokens);
 
-                        // new_binop_exp_node(op, lhs, rhs);
-                        // TODO: implement [ operator
                         lhs = std::make_unique<UnOpNode>(info.op, lhs);
                         lhs->line_num = tok->line_num;
                         lhs->col_num  = tok->col_num;
@@ -282,7 +279,6 @@ exp_bp(std::deque<std::unique_ptr<Token>> &tokens, int min_bp)
 
                         // Now parse rhs
                         auto rhs = exp_bp(tokens, r_bp);
-                        // TODO: cons rhs and lhs together
                         lhs = std::make_unique<BinOpNode>(info.op, lhs, rhs);
                         lhs->line_num = tok->line_num;
                         lhs->col_num  = tok->col_num;
@@ -516,7 +512,6 @@ parse_fundecl_stmt(std::deque<std::unique_ptr<Token>> &tokens)
                 expect_token_type(TokenType::TypeName, tokens)->string_value);
         expect_token_type(TokenType::Lparen, tokens);
 
-        // TODO: Should this be a pointer? Like ParamNode_p?
         std::vector<ParamNode> params;
         if (tokens.front()->type != TokenType::Rparen) {
                 while (1) {
