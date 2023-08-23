@@ -164,7 +164,8 @@ struct BinOpNode : ExpNode {
                   std::unique_ptr<ExpNode> &_lhs,
                   std::unique_ptr<ExpNode> &_rhs)
         {
-                op = _op;
+                kind = ExpKind::BinopExp;
+                op   = _op;
                 lhs.swap(_lhs);
                 rhs.swap(_rhs);
         }
