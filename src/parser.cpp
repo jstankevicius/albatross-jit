@@ -72,48 +72,48 @@ op_binding_power(TokenType op, bool minus_prefix_flag = false)
         // In decreasing order of precedence:
         switch (op) {
         case TokenType::Lbracket:
-                return OpInfo{ Operator::OpSub, 200, -1, OpInfo::Postfix };
+                return OpInfo{ Operator::Sub, 200, -1, OpInfo::Postfix };
         case TokenType::OpNot:
-                return OpInfo{ Operator::OpNot, -1, 190, OpInfo::Prefix };
+                return OpInfo{ Operator::Not, -1, 190, OpInfo::Prefix };
         case TokenType::OpTimes:
-                return OpInfo{ Operator::OpTimes, 175, 180, OpInfo::Infix };
+                return OpInfo{ Operator::Times, 175, 180, OpInfo::Infix };
         case TokenType::OpDiv:
-                return OpInfo{ Operator::OpDiv, 175, 180, OpInfo::Infix };
+                return OpInfo{ Operator::Div, 175, 180, OpInfo::Infix };
         case TokenType::OpRem:
-                return OpInfo{ Operator::OpRem, 175, 180, OpInfo::Infix };
+                return OpInfo{ Operator::Rem, 175, 180, OpInfo::Infix };
         case TokenType::OpPlus:
-                return OpInfo{ Operator::OpPlus, 165, 170, OpInfo::Infix };
+                return OpInfo{ Operator::Plus, 165, 170, OpInfo::Infix };
         case TokenType::OpMinus:
-                return minus_prefix_flag ? OpInfo{ Operator::OpMinus,
+                return minus_prefix_flag ? OpInfo{ Operator::Minus,
                                                    -1,
                                                    190,
                                                    OpInfo::Prefix } :
-                                           OpInfo{ Operator::OpMinus,
+                                           OpInfo{ Operator::Minus,
                                                    165,
                                                    170,
                                                    OpInfo::Infix };
         case TokenType::OpLt:
-                return OpInfo{ Operator::OpLt, 145, 150, OpInfo::Infix };
+                return OpInfo{ Operator::Lt, 145, 150, OpInfo::Infix };
         case TokenType::OpLe:
-                return OpInfo{ Operator::OpLe, 145, 150, OpInfo::Infix };
+                return OpInfo{ Operator::Le, 145, 150, OpInfo::Infix };
         case TokenType::OpGt:
-                return OpInfo{ Operator::OpGt, 145, 150, OpInfo::Infix };
+                return OpInfo{ Operator::Gt, 145, 150, OpInfo::Infix };
         case TokenType::OpGe:
-                return OpInfo{ Operator::OpGe, 145, 150, OpInfo::Infix };
+                return OpInfo{ Operator::Ge, 145, 150, OpInfo::Infix };
         case TokenType::OpEq:
-                return OpInfo{ Operator::OpEq, 135, 140, OpInfo::Infix };
+                return OpInfo{ Operator::Eq, 135, 140, OpInfo::Infix };
         case TokenType::OpNe:
-                return OpInfo{ Operator::OpNe, 135, 140, OpInfo::Infix };
+                return OpInfo{ Operator::Ne, 135, 140, OpInfo::Infix };
         case TokenType::OpBand:
-                return OpInfo{ Operator::OpBand, 125, 130, OpInfo::Infix };
+                return OpInfo{ Operator::Band, 125, 130, OpInfo::Infix };
         case TokenType::OpXor:
-                return OpInfo{ Operator::OpXor, 115, 120, OpInfo::Infix };
+                return OpInfo{ Operator::Xor, 115, 120, OpInfo::Infix };
         case TokenType::OpBor:
-                return OpInfo{ Operator::OpBor, 105, 110, OpInfo::Infix };
+                return OpInfo{ Operator::Bor, 105, 110, OpInfo::Infix };
         case TokenType::OpAnd:
-                return OpInfo{ Operator::OpAnd, 95, 100, OpInfo::Infix };
+                return OpInfo{ Operator::And, 95, 100, OpInfo::Infix };
         case TokenType::OpOr:
-                return OpInfo{ Operator::OpOr, 85, 90, OpInfo::Infix };
+                return OpInfo{ Operator::Or, 85, 90, OpInfo::Infix };
         default: return OpInfo{ Operator::Invalid, -1, -1, OpInfo::Invalid };
         }
 }

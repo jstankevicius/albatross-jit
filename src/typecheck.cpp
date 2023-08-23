@@ -9,10 +9,10 @@ typecheck_exp(ExpNode *exp)
 {
         switch (exp->kind) {
         case ExpNode::IntExp: {
-                return IntType;
+                return Type::Int;
         }
         case ExpNode::StringExp: {
-                return StringType;
+                return Type::String;
         }
         case ExpNode::VarExp: {
                 auto node = dynamic_cast<VarNode *>(exp);
@@ -146,7 +146,7 @@ typecheck_stmt(StmtNode *stmt, std::optional<Type> fun_ret_type = std::nullopt)
         case StmtNode::IfStmt: {
                 auto node      = dynamic_cast<IfNode *>(stmt);
                 Type cond_type = typecheck_exp(node->cond.get());
-                if (cond_type != IntType) {
+                if (cond_type != Type::Int) {
                         throw AlbatrossError(
                                 "Condition expressions in if statements must be of type int, but got "
                                         + type_to_str(cond_type),
@@ -163,7 +163,7 @@ typecheck_stmt(StmtNode *stmt, std::optional<Type> fun_ret_type = std::nullopt)
                 auto node = dynamic_cast<WhileNode *>(stmt);
 
                 Type cond_type = typecheck_exp(node->cond.get());
-                if (cond_type != IntType) {
+                if (cond_type != Type::Int) {
                         throw AlbatrossError(
                                 "Condition expressions in while statements must be of type int, but got "
                                         + type_to_str(cond_type),
@@ -181,7 +181,7 @@ typecheck_stmt(StmtNode *stmt, std::optional<Type> fun_ret_type = std::nullopt)
                 auto node = dynamic_cast<RepeatNode *>(stmt);
 
                 Type cond_type = typecheck_exp(node->cond.get());
-                if (cond_type != IntType) {
+                if (cond_type != Type::Int) {
                         throw AlbatrossError(
                                 "Condition expressions in repeat statements must be of type int, but got "
                                         + type_to_str(cond_type),
@@ -250,7 +250,7 @@ typecheck_stmt(StmtNode *stmt, std::optional<Type> fun_ret_type = std::nullopt)
                 Type ret_exp_type =
                         node->ret_exp.has_value() ?
                                 typecheck_exp(node->ret_exp.value().get()) :
-                                VoidType;
+                                Type::Void;
 
                 if (fun_ret_type && fun_ret_type.value() != ret_exp_type) {
                         throw AlbatrossError(
@@ -262,7 +262,7 @@ typecheck_stmt(StmtNode *stmt, std::optional<Type> fun_ret_type = std::nullopt)
                 }
                 // If the above check fails, we are in the global scope and can return only
                 // integers.
-                if (!fun_ret_type && ret_exp_type != IntType) {
+                if (!fun_ret_type && ret_exp_type != Type::Int) {
                         throw AlbatrossError(
                                 "Return expression in global scope must be of type "
                                 "'int', but got '"

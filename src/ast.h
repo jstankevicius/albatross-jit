@@ -10,58 +10,58 @@
 #include "token.h"
 #include "types.h"
 
-typedef enum {
+enum class Operator {
         Invalid,
 
         // Infix operators
-        OpOr,
-        OpAnd,
-        OpBor,
-        OpXor,
-        OpBand,
-        OpNe,
-        OpEq,
-        OpGt,
-        OpGe,
-        OpLt,
-        OpLe,
-        OpPlus,
-        OpMinus,
-        OpTimes,
-        OpDiv,
-        OpRem,
+        Or,
+        And,
+        Bor,
+        Xor,
+        Band,
+        Ne,
+        Eq,
+        Gt,
+        Ge,
+        Lt,
+        Le,
+        Plus,
+        Minus,
+        Times,
+        Div,
+        Rem,
 
         // Prefix operators
-        OpNot,
-        OpNeg,
+        Not,
+        Neg,
 
         // Postfix operators
-        OpSub
-} Operator;
+        Sub
+};
 
 static std::string
 op_str(Operator op)
 {
         switch (op) {
-        case OpOr: return "||";
-        case OpAnd: return "&&";
-        case OpBor: return "|";
-        case OpXor: return "^";
-        case OpBand: return "&";
-        case OpNe: return "<>";
-        case OpEq: return "==";
-        case OpGt: return ">";
-        case OpGe: return ">=";
-        case OpLt: return "<";
-        case OpLe: return "<=";
-        case OpPlus: return "+";
-        case OpMinus: return "-";
-        case OpTimes: return "*";
-        case OpDiv: return "/";
-        case OpRem: return "%";
-        case OpNot: return "!";
-        case OpNeg: return "-";
-        case OpSub: return "[";
+        case Operator::Or: return "||";
+        case Operator::And: return "&&";
+        case Operator::Bor: return "|";
+        case Operator::Xor: return "^";
+        case Operator::Band: return "&";
+        case Operator::Ne: return "<>";
+        case Operator::Eq: return "==";
+        case Operator::Gt: return ">";
+        case Operator::Ge: return ">=";
+        case Operator::Lt: return "<";
+        case Operator::Le: return "<=";
+        case Operator::Plus: return "+";
+        case Operator::Minus: return "-";
+        case Operator::Times: return "*";
+        case Operator::Div: return "/";
+        case Operator::Rem: return "%";
+        case Operator::Not: return "!";
+        case Operator::Neg: return "-";
+        case Operator::Sub: return "[";
         default: perror("Invalid operator"); exit(EXIT_FAILURE);
         }
 }
