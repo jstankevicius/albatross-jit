@@ -177,7 +177,7 @@ struct BinOpNode : ExpNode {
 
 struct VarNode : ExpNode {
         std::string            name;
-        std::optional<VarInfo> info;
+        std::optional<VarInfo> var_info;
 
         VarNode()
         {
@@ -228,6 +228,8 @@ struct StmtNode {
                 FundecStmt,
                 RetStmt
         } kind;
+
+        virtual ~StmtNode() = default;
 };
 
 struct AssignNode : StmtNode {

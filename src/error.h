@@ -26,15 +26,17 @@ class AlbatrossError : public std::runtime_error {
         {
         }
 
-        inline int line_num()
+        int line_num()
         {
                 return _line_num;
         }
-        inline int col_num()
+
+        int col_num()
         {
                 return _col_num;
         }
-        inline char exit_code()
+
+        char exit_code()
         {
                 return _exit_code;
         }

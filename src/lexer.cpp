@@ -9,31 +9,31 @@
 #include "compiler_stages.h"
 #include "error.h"
 
-inline bool
+bool
 is_alpha(char c)
 {
         return ('A' <= c && c <= 'Z') || ('a' <= c && c <= 'z');
 }
 
-inline bool
+bool
 is_numeric(char c)
 {
         return '0' <= c && c <= '9';
 }
 
-inline bool
+bool
 is_whitespace(char c)
 {
         return c == ' ' || c == '\t' || c == '\n' || c == '\r';
 }
 
-inline bool
+bool
 is_alphanumeric(char c)
 {
         return is_numeric(c) || is_alpha(c);
 }
 
-inline bool
+bool
 is_punctuation(char c)
 {
         return c == '(' || c == ')' || c == '[' || c == ']' || c == '{'
@@ -42,14 +42,14 @@ is_punctuation(char c)
 
 // Returns whether the lexer has processed the entire stream. This happens when
 // idx is pushed beyond the length of the actual stream.
-inline bool
+bool
 ProgramText::done()
 {
         return idx >= stream.length();
 }
 
 // If the stream is not done, returns the character at stream_idx. Otherwise,
-// returns -1 (an invalid character).
+// returns -1.
 char
 ProgramText::cur_char()
 {
@@ -114,9 +114,7 @@ ProgramText::skip_whitespace()
         }
 }
 
-// Returns a token that is not a literal. These can be tokens like "+", ">=",
-// "variable-name", etc. The lexer does not validate the names of the tokens, as
-// that is done later.
+// Get an alphanumeric symbol, like "while", "variable_name", or "foo_3".
 std::shared_ptr<Token>
 get_symbol(ProgramText &t)
 {
@@ -143,20 +141,17 @@ get_symbol(ProgramText &t)
 
         std::string str;
 
-        // Don't need to check for out of bounds since cur_char just
-        // returns -1 once we've reached the end of the stream.
-        // TODO: This doesn't support underscores
+        // Don't need to check for out of bounds since cur_char just returns -1
+        // once we've reached the end of the stream.
         while (!is_whitespace(t.cur_char()) && !t.done()
                && (is_alphanumeric(t.cur_char()) || t.cur_char() == '_')) {
                 str += t.next();
         }
 
         token->string_value = str;
-
-        // TODO: formatting?
-        token->type = keyword_map.find(str) != keyword_map.end() ?
-                              keyword_map[str] :
-                              TokenType::Identifier;
+        token->type         = keyword_map.find(str) != keyword_map.end() ?
+                                      keyword_map[str] :
+                                      TokenType::Identifier;
         return token;
 }
 
@@ -284,7 +279,6 @@ get_string_literal(ProgramText &t)
         token->stream   = &t.stream;
         std::string str_literal;
 
-        // str_literal += t.cur_char();
         // Skip opening quote
         t.advance_char();
 

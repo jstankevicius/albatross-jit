@@ -63,13 +63,13 @@ struct OpInfo {
 };
 
 // Return an operator's left and right binding power.
-// TODO: This doesn't need to take the entire token queue.
+// The `minus_prefix_flag` parameter is not clean at all. This function should
+// just take an operator and return its binding power. It shouldn't need to grab
+// a token from a queue or do any checking of a flag to determine if a minus
+// sign is actually a negative sign.
 OpInfo
-op_binding_power(const std::deque<std::shared_ptr<Token>> &tokens,
-                 bool minus_prefix_flag = false)
+op_binding_power(TokenType op, bool minus_prefix_flag = false)
 {
-        TokenType op = tokens.front()->type;
-
         // In decreasing order of precedence:
         switch (op) {
         case TokenType::Lbracket:
@@ -191,8 +191,10 @@ parse_call_exp(std::deque<std::shared_ptr<Token>> &tokens)
 std::unique_ptr<ExpNode>
 exp_bp(std::deque<std::shared_ptr<Token>> &tokens, int min_bp)
 {
-        auto                     front = tokens.front();
         std::unique_ptr<ExpNode> lhs;
+
+        auto front = tokens.front();
+
         switch (front->type) {
         case TokenType::IntLiteral: {
                 lhs = parse_int_exp(tokens);
@@ -221,10 +223,9 @@ exp_bp(std::deque<std::shared_ptr<Token>> &tokens, int min_bp)
                 break;
         }
 
-        // Well, it can pretty much ONLY be a prefix operator.
         case TokenType::OpMinus:
         case TokenType::OpNot: {
-                OpInfo info = op_binding_power(tokens, true);
+                OpInfo info = op_binding_power(tokens.front()->type, true);
                 assert(info.kind == OpInfo::Prefix);
                 auto r_bp = info.r_bp;
 
@@ -251,7 +252,7 @@ exp_bp(std::deque<std::shared_ptr<Token>> &tokens, int min_bp)
                         break;
                 }
 
-                OpInfo info = op_binding_power(tokens);
+                OpInfo info = op_binding_power(tokens.front()->type);
                 if (info.kind == OpInfo::Postfix) {
                         int l_bp = info.l_bp;
                         if (l_bp < min_bp) {

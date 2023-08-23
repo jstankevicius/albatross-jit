@@ -8,12 +8,12 @@
 template <typename T> struct Scope {
         std::unordered_map<std::string, T> symbols;
 
-        inline void add_symbol(std::string &sym_name, T info)
+        void add_symbol(std::string &sym_name, T info)
         {
                 symbols.emplace(sym_name, info);
         }
 
-        inline std::optional<T> find_symbol(std::string &sym_name)
+        std::optional<T> find_symbol(std::string &sym_name)
         {
                 if (symbols.count(sym_name) > 0) {
                         return symbols[sym_name];
@@ -30,13 +30,13 @@ template <typename T> struct SymbolTable {
 
         int sym_idx = 0;
 
-        inline void add_symbol(std::string &sym_name, T info)
+        void add_symbol(std::string &sym_name, T info)
         {
                 cur_scope()->add_symbol(sym_name, info);
                 sym_idx++;
         }
 
-        inline std::optional<T> find_symbol(std::string &sym_name)
+        std::optional<T> find_symbol(std::string &sym_name)
         {
                 assert(!scopes.empty());
 
@@ -54,17 +54,17 @@ template <typename T> struct SymbolTable {
                 return {};
         }
 
-        inline std::unique_ptr<Scope<T>> &cur_scope()
+        std::unique_ptr<Scope<T>> &cur_scope()
         {
                 return scopes.back();
         }
 
-        inline void enter_scope()
+        void enter_scope()
         {
                 scopes.push_back(std::make_unique<Scope<T>>());
         }
 
-        inline void exit_scope()
+        void exit_scope()
         {
                 assert(scopes.size() > 1);
                 scopes.pop_back();
