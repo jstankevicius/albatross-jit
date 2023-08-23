@@ -84,14 +84,13 @@ op_binding_power(TokenType op, bool minus_prefix_flag = false)
         case TokenType::OpPlus:
                 return OpInfo{ Operator::Plus, 165, 170, OpInfo::Infix };
         case TokenType::OpMinus:
-                return minus_prefix_flag ? OpInfo{ Operator::Minus,
-                                                   -1,
-                                                   190,
-                                                   OpInfo::Prefix } :
-                                           OpInfo{ Operator::Minus,
-                                                   165,
-                                                   170,
-                                                   OpInfo::Infix };
+                return minus_prefix_flag ?
+                               OpInfo{
+                                       Operator::Minus, -1, 190, OpInfo::Prefix
+                               } :
+                               OpInfo{
+                                       Operator::Minus, 165, 170, OpInfo::Infix
+                               };
         case TokenType::OpLt:
                 return OpInfo{ Operator::Lt, 145, 150, OpInfo::Infix };
         case TokenType::OpLe:
@@ -334,9 +333,10 @@ parse_vardecl_stmt(std::deque<std::unique_ptr<Token>> &tokens)
 std::unique_ptr<StmtNode>
 parse_assign_stmt(std::deque<std::unique_ptr<Token>> &tokens)
 {
-        std::unique_ptr<ExpNode> lhs = parse_exp(tokens);
+        auto lhs = parse_exp(tokens);
         auto tok = expect_token_type(TokenType::Assign, tokens);
-        std::unique_ptr<ExpNode> rhs = parse_exp(tokens);
+        auto rhs = parse_exp(tokens);
+
         expect_token_type(TokenType::Semicolon, tokens);
 
         auto node      = std::make_unique<AssignNode>();
