@@ -137,7 +137,6 @@ get_symbol(ProgramText &t)
         auto token      = std::make_unique<Token>();
         token->col_num  = t.col_num;
         token->line_num = t.line_num;
-        token->stream   = &t.stream;
 
         std::string str;
 
@@ -163,7 +162,6 @@ get_numeric_literal(ProgramText &t)
         auto token      = std::make_unique<Token>();
         token->col_num  = t.col_num;
         token->line_num = t.line_num;
-        token->stream   = &t.stream;
         token->type     = TokenType::IntLiteral;
         std::string num_literal;
 
@@ -246,7 +244,6 @@ get_punctuation(ProgramText &t)
         auto token      = std::make_unique<Token>();
         token->col_num  = t.col_num;
         token->line_num = t.line_num;
-        token->stream   = &t.stream;
         token->string_value += t.cur_char();
 
         switch (t.cur_char()) {
@@ -276,7 +273,6 @@ get_string_literal(ProgramText &t)
         auto token      = std::make_unique<Token>();
         token->col_num  = t.col_num;
         token->line_num = t.line_num;
-        token->stream   = &t.stream;
         std::string str_literal;
 
         // Skip opening quote
@@ -354,7 +350,6 @@ get_operator(ProgramText &t)
         auto token      = std::make_unique<Token>();
         token->col_num  = t.col_num;
         token->line_num = t.line_num;
-        token->stream   = &t.stream;
 
         char cur_char  = t.cur_char();
         char next_char = t.peek();
@@ -619,7 +614,6 @@ tokenize(ProgramText &t)
         std::unique_ptr<Token> eof_token = std::make_unique<Token>();
         eof_token->line_num              = t.line_num;
         eof_token->col_num               = t.col_num;
-        eof_token->stream                = &t.stream;
         eof_token->type                  = TokenType::Eof;
         tokens.push_back(std::move(eof_token));
 
