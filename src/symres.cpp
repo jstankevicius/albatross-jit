@@ -17,7 +17,6 @@ resolve_exp(ExpNode              *exp,
                 // If res has no value, there was no corresponding vardecl that declared
                 // this variable. Error out:
                 if (!res.has_value()) {
-                        // TODO: Better errors:
                         throw AlbatrossError("Could not find symbol "
                                                      + node->name,
                                              exp->line_num,
