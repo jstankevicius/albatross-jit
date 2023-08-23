@@ -1,6 +1,7 @@
 #include "symres.h"
 #include "ast.h"
 #include "error.h"
+#include <iostream>
 
 void
 resolve_exp(ExpNode              *exp,
@@ -91,13 +92,14 @@ resolve_stmt(StmtNode             *stmt,
         case StmtNode::AssignStmt: {
                 auto node = dynamic_cast<AssignNode *>(stmt);
                 resolve_exp(node->lhs.get(), vars, functions);
-                resolve_exp(node->lhs.get(), vars, functions);
+                resolve_exp(node->rhs.get(), vars, functions);
                 return;
         }
 
         case StmtNode::IfStmt: {
                 auto node = dynamic_cast<IfNode *>(stmt);
 
+                resolve_exp(node->cond.get(), vars, functions);
                 vars.enter_scope();
                 resolve_stmts(node->then_stmts, vars, functions);
                 vars.exit_scope();

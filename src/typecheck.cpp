@@ -16,10 +16,12 @@ typecheck_exp(ExpNode *exp)
         }
         case ExpNode::VarExp: {
                 auto node = dynamic_cast<VarNode *>(exp);
-                Type type = node->var_info.value().var_type;
-
-                // TODO: Distinguish between reading from a variable and writing
-                // to a variable.
+                Type type;
+                try {
+                        type = node->var_info.value().var_type;
+                } catch (std::bad_optional_access &e) {
+                        throw AlbatrossError("failed to read var_info for variable " + node->name, node->line_num, node->col_num, EXIT_FAILURE);
+                }
 #ifdef COMPILE_STAGE_LEXER
 #ifdef COMPILE_STAGE_PARSER
 #ifdef COMPILE_STAGE_SYMBOL_RESOLVER
@@ -107,30 +109,41 @@ typecheck_stmt(StmtNode *stmt, std::optional<Type> fun_ret_type = std::nullopt)
         case StmtNode::AssignStmt: {
                 auto node = dynamic_cast<AssignNode *>(stmt);
 
-                // TODO: lhs should be legal lval; it cannot be something like 2 + 3.
-                // Although if it is a variable, this will work just fine.
-                Type type_lhs = typecheck_exp(node->lhs.get());
-                Type type_rhs = typecheck_exp(node->rhs.get());
+                if (node->lhs->kind == ExpNode::VarExp) {
+                        auto var = dynamic_cast<VarNode *>(node->lhs.get());
+                        Type type_rhs = typecheck_exp(node->rhs.get());
+                        Type type_lhs = var->var_info.value().var_type;
+#ifdef COMPILE_STAGE_LEXER
+#ifdef COMPILE_STAGE_PARSER
+#ifdef COMPILE_STAGE_SYMBOL_RESOLVER
+#ifdef COMPILE_STAGE_TYPE_CHECKER
+                std::cout << "Variable written \"" << var->name  << "\" type "
+                          << type_to_str(type_lhs) << "\n";
+#endif
+#endif
+#endif
+#endif
 
-                if (type_lhs != type_rhs) {
-                        throw AlbatrossError("Mismatched types in assignment",
-                                             stmt->line_num,
-                                             stmt->col_num,
-                                             EXIT_TYPECHECK_FAILURE);
+                        if (type_lhs != type_rhs) {
+                                throw AlbatrossError(
+                                        "Mismatched types in assignment",
+                                        stmt->line_num,
+                                        stmt->col_num,
+                                        EXIT_TYPECHECK_FAILURE);
+                        }
+                        return;
+                } else {
+                        throw AlbatrossError(
+                                "Assigned-to value must be a variable or an array address",
+                                node->line_num,
+                                node->col_num,
+                                EXIT_TYPECHECK_FAILURE);
                 }
-                return;
         }
         case StmtNode::VardeclStmt: {
                 auto node     = dynamic_cast<VardeclNode *>(stmt);
                 Type type_lhs = node->type;
-                Type type_rhs = typecheck_exp(node->rhs.get());
-                if (type_lhs != type_rhs) {
-                        throw AlbatrossError(
-                                "Mismatched types in variable declaration",
-                                stmt->line_num,
-                                stmt->col_num,
-                                EXIT_TYPECHECK_FAILURE);
-                }
+
 #ifdef COMPILE_STAGE_LEXER
 #ifdef COMPILE_STAGE_PARSER
 #ifdef COMPILE_STAGE_SYMBOL_RESOLVER
@@ -141,6 +154,15 @@ typecheck_stmt(StmtNode *stmt, std::optional<Type> fun_ret_type = std::nullopt)
 #endif
 #endif
 #endif
+
+                Type type_rhs = typecheck_exp(node->rhs.get());
+                if (type_lhs != type_rhs) {
+                        throw AlbatrossError(
+                                "Mismatched types in variable declaration",
+                                stmt->line_num,
+                                stmt->col_num,
+                                EXIT_TYPECHECK_FAILURE);
+                }
                 return;
         }
         case StmtNode::IfStmt: {
@@ -155,8 +177,8 @@ typecheck_stmt(StmtNode *stmt, std::optional<Type> fun_ret_type = std::nullopt)
                                 EXIT_TYPECHECK_FAILURE);
                 }
 
-                typecheck_stmts(node->then_stmts);
-                typecheck_stmts(node->else_stmts);
+                typecheck_stmts(node->then_stmts, fun_ret_type);
+                typecheck_stmts(node->else_stmts, fun_ret_type);
                 return;
         }
         case StmtNode::WhileStmt: {
@@ -172,9 +194,8 @@ typecheck_stmt(StmtNode *stmt, std::optional<Type> fun_ret_type = std::nullopt)
                                 EXIT_TYPECHECK_FAILURE);
                 }
 
-                typecheck_exp(node->cond.get());
-                typecheck_stmts(node->body_stmts);
-                typecheck_stmts(node->otherwise_stmts);
+                typecheck_stmts(node->body_stmts, fun_ret_type);
+                typecheck_stmts(node->otherwise_stmts, fun_ret_type);
                 return;
         }
         case StmtNode::RepeatStmt: {
@@ -190,8 +211,7 @@ typecheck_stmt(StmtNode *stmt, std::optional<Type> fun_ret_type = std::nullopt)
                                 EXIT_TYPECHECK_FAILURE);
                 }
 
-                typecheck_exp(node->cond.get());
-                typecheck_stmts(node->body_stmts);
+                typecheck_stmts(node->body_stmts, fun_ret_type);
                 return;
         }
         case StmtNode::CallStmt: {
@@ -252,7 +272,7 @@ typecheck_stmt(StmtNode *stmt, std::optional<Type> fun_ret_type = std::nullopt)
                                 typecheck_exp(node->ret_exp.value().get()) :
                                 Type::Void;
 
-                if (fun_ret_type && fun_ret_type.value() != ret_exp_type) {
+                if (fun_ret_type.has_value() && fun_ret_type.value() != ret_exp_type) {
                         throw AlbatrossError(
                                 "Return statement does not return type specified in "
                                 "function declaration.",
@@ -262,7 +282,7 @@ typecheck_stmt(StmtNode *stmt, std::optional<Type> fun_ret_type = std::nullopt)
                 }
                 // If the above check fails, we are in the global scope and can return only
                 // integers.
-                if (!fun_ret_type && ret_exp_type != Type::Int) {
+                if (!fun_ret_type.has_value() && ret_exp_type != Type::Int) {
                         throw AlbatrossError(
                                 "Return expression in global scope must be of type "
                                 "'int', but got '"
@@ -283,6 +303,13 @@ typecheck_stmt(StmtNode *stmt, std::optional<Type> fun_ret_type = std::nullopt)
                 std::cout << "Function declared \"" << node->name
                           << "\" returns " << type_to_str(node->ret_type)
                           << "\n";
+
+                for (unsigned int i = 0; i < node->params.size(); i++) {
+                        auto &param = node->params[i];
+                        std::cout << "\tArgument \"" << param.name << "\" ";
+                        std::cout << "type " << type_to_str(param.type) << " ";
+                        std::cout << "position " << i << "\n";
+                }
 #endif
 #endif
 #endif
