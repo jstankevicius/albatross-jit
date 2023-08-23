@@ -8,8 +8,8 @@
 #include "error.h"
 #include "lexer.h"
 #include "parser.h"
-// #include "symres.h"
-// #include "typecheck.h"
+#include "symres.h"
+#include "typecheck.h"
 
 int
 main(int argc, char *argv[])
@@ -41,15 +41,15 @@ main(int argc, char *argv[])
                 auto stmts = parse_stmts(tokens);
 
 #ifdef COMPILE_STAGE_SYMBOL_RESOLVER
-                // SymbolTable<VarInfo> vars;
-                // SymbolTable<FunInfo> functions;
+                SymbolTable<VarInfo> vars;
+                SymbolTable<FunInfo> functions;
 
-                // functions.enter_scope();
-                // vars.enter_scope();
+                functions.enter_scope();
+                vars.enter_scope();
 
-                // resolve_stmts(stmts, vars, functions);
+                resolve_stmts(stmts, vars, functions);
 #ifdef COMPILE_STAGE_TYPE_CHECKER
-                // typecheck_stmts(stmts);
+                typecheck_stmts(stmts);
 #endif
 #endif
 #endif
