@@ -115,7 +115,7 @@ ProgramText::skip_whitespace()
 }
 
 // Get an alphanumeric symbol, like "while", "variable_name", or "foo_3".
-std::shared_ptr<Token>
+std::unique_ptr<Token>
 get_symbol(ProgramText &t)
 {
         static std::unordered_map<std::string, TokenType> keyword_map;
@@ -134,7 +134,7 @@ get_symbol(ProgramText &t)
                 keyword_map["void"]      = TokenType::TypeName;
         }
 
-        auto token      = std::make_shared<Token>();
+        auto token      = std::make_unique<Token>();
         token->col_num  = t.col_num;
         token->line_num = t.line_num;
         token->stream   = &t.stream;
@@ -157,10 +157,10 @@ get_symbol(ProgramText &t)
 
 // Returns a token for a numeric literal (like 123, 3.14, or their negative
 // counterparts).
-std::shared_ptr<Token>
+std::unique_ptr<Token>
 get_numeric_literal(ProgramText &t)
 {
-        auto token      = std::make_shared<Token>();
+        auto token      = std::make_unique<Token>();
         token->col_num  = t.col_num;
         token->line_num = t.line_num;
         token->stream   = &t.stream;
@@ -240,10 +240,10 @@ get_numeric_literal(ProgramText &t)
 
 // Returns a token for "punctuation". This is a catch-all term for tokens that
 // are not symbols or literals.
-std::shared_ptr<Token>
+std::unique_ptr<Token>
 get_punctuation(ProgramText &t)
 {
-        auto token      = std::make_shared<Token>();
+        auto token      = std::make_unique<Token>();
         token->col_num  = t.col_num;
         token->line_num = t.line_num;
         token->stream   = &t.stream;
@@ -270,10 +270,10 @@ get_punctuation(ProgramText &t)
         return token;
 }
 
-std::shared_ptr<Token>
+std::unique_ptr<Token>
 get_string_literal(ProgramText &t)
 {
-        auto token      = std::make_shared<Token>();
+        auto token      = std::make_unique<Token>();
         token->col_num  = t.col_num;
         token->line_num = t.line_num;
         token->stream   = &t.stream;
@@ -348,10 +348,10 @@ get_string_literal(ProgramText &t)
         return token;
 }
 
-std::shared_ptr<Token>
+std::unique_ptr<Token>
 get_operator(ProgramText &t)
 {
-        auto token      = std::make_shared<Token>();
+        auto token      = std::make_unique<Token>();
         token->col_num  = t.col_num;
         token->line_num = t.line_num;
         token->stream   = &t.stream;
@@ -475,10 +475,10 @@ get_operator(ProgramText &t)
 }
 
 // Tokenizes the string in a ProgramText into a token list.
-std::deque<std::shared_ptr<Token>>
+std::deque<std::unique_ptr<Token>>
 tokenize(ProgramText &t)
 {
-        std::deque<std::shared_ptr<Token>> tokens;
+        std::deque<std::unique_ptr<Token>> tokens;
 
         while (!t.done()) {
                 if (is_numeric(t.cur_char())
@@ -532,7 +532,7 @@ tokenize(ProgramText &t)
 #ifndef COMPILE_STAGE_TYPE_CHECKER
         std::string type_str = "";
 
-        for (auto token : tokens) {
+        for (auto &token : tokens) {
                 std::cout << token->col_num << " " << token->line_num << " ";
 
                 switch (token->type) {
@@ -616,12 +616,12 @@ tokenize(ProgramText &t)
 #endif
 #endif
 
-        std::shared_ptr<Token> eof_token = std::make_shared<Token>();
+        std::unique_ptr<Token> eof_token = std::make_unique<Token>();
         eof_token->line_num              = t.line_num;
         eof_token->col_num               = t.col_num;
         eof_token->stream                = &t.stream;
         eof_token->type                  = TokenType::Eof;
-        tokens.push_back(eof_token);
+        tokens.push_back(std::move(eof_token));
 
         return tokens;
 }
