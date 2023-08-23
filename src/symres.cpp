@@ -179,7 +179,7 @@ resolve_stmt(StmtNode             *stmt,
 
         case StmtNode::RetStmt: {
                 auto node = dynamic_cast<RetNode*>(stmt);
-                if (node->ret_exp.value() != nullptr) {
+                if (node->ret_exp.has_value()) {
                         resolve_exp(node->ret_exp.value().get(), vars, functions);
                 }
                 return;

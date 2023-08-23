@@ -309,7 +309,7 @@ struct FundecNode : StmtNode {
 };
 
 struct RetNode : StmtNode {
-        std::optional<std::unique_ptr<ExpNode>> ret_exp;
+        std::optional<std::unique_ptr<ExpNode>> ret_exp = std::nullopt;
 
         RetNode()
         {

@@ -368,11 +368,10 @@ std::unique_ptr<StmtNode>
 parse_return_stmt(std::deque<std::shared_ptr<Token>> &tokens)
 {
         auto tok = expect_token_type(TokenType::KeywordReturn, tokens);
-        // TODO: This is bad.
-        std::unique_ptr<ExpNode> ret_exp(nullptr);
+        auto node      = std::make_unique<RetNode>();
 
         if (tokens.front()->type != TokenType::Semicolon) {
-                ret_exp = parse_exp(tokens);
+                auto ret_exp = parse_exp(tokens);
 
 #ifdef COMPILE_STAGE_LEXER
 #ifdef COMPILE_STAGE_PARSER
@@ -383,12 +382,12 @@ parse_return_stmt(std::deque<std::shared_ptr<Token>> &tokens)
 #endif
 #endif
 #endif
+
+                node->ret_exp  = std::move(ret_exp);
         }
 
         expect_token_type(TokenType::Semicolon, tokens);
 
-        auto node      = std::make_unique<RetNode>();
-        node->ret_exp  = std::move(ret_exp);
         node->line_num = tok->line_num;
         node->col_num  = tok->col_num;
 
