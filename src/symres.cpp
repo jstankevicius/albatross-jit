@@ -3,16 +3,16 @@
 #include "error.h"
 
 void
-resolve_exp(ExpNode* exp,
-            SymbolTable<VarInfo>    &vars,
-            SymbolTable<FunInfo>    &functions)
+resolve_exp(ExpNode              *exp,
+            SymbolTable<VarInfo> &vars,
+            SymbolTable<FunInfo> &functions)
 {
         switch (exp->kind) {
         case ExpNode::IntExp: return;
         case ExpNode::StringExp: return;
         case ExpNode::VarExp: {
-                auto node = dynamic_cast<VarNode*>(exp);
-                auto  res = vars.find_symbol(node->name);
+                auto node = dynamic_cast<VarNode *>(exp);
+                auto res  = vars.find_symbol(node->name);
 
                 // If res has no value, there was no corresponding vardecl that declared
                 // this variable. Error out:
@@ -30,19 +30,19 @@ resolve_exp(ExpNode* exp,
                 return;
         }
         case ExpNode::BinopExp: {
-                auto node = dynamic_cast<BinOpNode*>(exp);
+                auto node = dynamic_cast<BinOpNode *>(exp);
                 resolve_exp(node->lhs.get(), vars, functions);
                 resolve_exp(node->rhs.get(), vars, functions);
                 return;
         }
         case ExpNode::UnopExp: {
-                auto node = dynamic_cast<UnOpNode*>(exp);
+                auto node = dynamic_cast<UnOpNode *>(exp);
                 resolve_exp(node->e.get(), vars, functions);
                 return;
         }
         case ExpNode::CallExp: {
-                auto node = dynamic_cast<CallNode*>(exp);
-                auto  res = functions.find_symbol(node->name);
+                auto node = dynamic_cast<CallNode *>(exp);
+                auto res  = functions.find_symbol(node->name);
 
                 if (!res.has_value()) {
                         throw AlbatrossError("Undefined function " + node->name,
@@ -52,7 +52,7 @@ resolve_exp(ExpNode* exp,
                 }
 
                 // If the function exists, resolve its args:
-                for (auto& arg : node->args) {
+                for (auto &arg : node->args) {
                         resolve_exp(arg.get(), vars, functions);
                 }
                 node->fun_info = res;
@@ -69,7 +69,7 @@ resolve_stmt(StmtNode             *stmt,
 {
         switch (stmt->kind) {
         case StmtNode::VardeclStmt: {
-                auto node = dynamic_cast<VardeclNode*>(stmt);
+                auto node = dynamic_cast<VardeclNode *>(stmt);
 
                 Type  type = node->type;
                 auto &name = node->lhs;
@@ -90,14 +90,14 @@ resolve_stmt(StmtNode             *stmt,
         }
 
         case StmtNode::AssignStmt: {
-                auto node = dynamic_cast<AssignNode*>(stmt);
+                auto node = dynamic_cast<AssignNode *>(stmt);
                 resolve_exp(node->lhs.get(), vars, functions);
                 resolve_exp(node->lhs.get(), vars, functions);
                 return;
         }
 
         case StmtNode::IfStmt: {
-                auto node = dynamic_cast<IfNode*>(stmt);
+                auto node = dynamic_cast<IfNode *>(stmt);
 
                 vars.enter_scope();
                 resolve_stmts(node->then_stmts, vars, functions);
@@ -106,7 +106,7 @@ resolve_stmt(StmtNode             *stmt,
         }
 
         case StmtNode::WhileStmt: {
-                auto node = dynamic_cast<WhileNode*>(stmt);
+                auto node = dynamic_cast<WhileNode *>(stmt);
 
                 resolve_exp(node->cond.get(), vars, functions);
                 vars.enter_scope();
@@ -120,7 +120,7 @@ resolve_stmt(StmtNode             *stmt,
         }
 
         case StmtNode::RepeatStmt: {
-                auto node = dynamic_cast<RepeatNode*>(stmt);
+                auto node = dynamic_cast<RepeatNode *>(stmt);
                 resolve_exp(node->cond.get(), vars, functions);
 
                 vars.enter_scope();
@@ -130,8 +130,8 @@ resolve_stmt(StmtNode             *stmt,
         }
 
         case StmtNode::CallStmt: {
-                auto node = dynamic_cast<CallStmtNode*>(stmt);
-                auto res = functions.find_symbol(node->name);
+                auto node = dynamic_cast<CallStmtNode *>(stmt);
+                auto res  = functions.find_symbol(node->name);
 
                 if (!res.has_value()) {
                         throw AlbatrossError("Undefined function " + node->name,
@@ -140,7 +140,7 @@ resolve_stmt(StmtNode             *stmt,
                                              EXIT_SYMRES_FAILURE);
                 }
 
-                for (auto& arg : node->args) {
+                for (auto &arg : node->args) {
                         resolve_exp(arg.get(), vars, functions);
                 }
                 node->fun_info = res;
@@ -148,7 +148,7 @@ resolve_stmt(StmtNode             *stmt,
         }
 
         case StmtNode::FundecStmt: {
-                auto node = dynamic_cast<FundecNode*>(stmt);
+                auto node = dynamic_cast<FundecNode *>(stmt);
 
                 // Make sure we're not redeclaring a function.
                 if (functions.cur_scope()->find_symbol(node->name)) {
@@ -160,13 +160,14 @@ resolve_stmt(StmtNode             *stmt,
                 }
 
                 // TODO: Constructing FunInfo this way is bad. Make an actual constructor.
-                functions.add_symbol(
-                        node->name,
-                        FunInfo{ node->ret_type, functions.sym_idx, node->params });
+                functions.add_symbol(node->name,
+                                     FunInfo{ node->ret_type,
+                                              functions.sym_idx,
+                                              node->params });
                 vars.enter_scope();
 
                 // Add parameters into the scope of the function body.
-                for (auto& p : node->params) {
+                for (auto &p : node->params) {
                         vars.add_symbol(p.name,
                                         VarInfo{ p.type, vars.sym_idx });
                 }
@@ -178,9 +179,10 @@ resolve_stmt(StmtNode             *stmt,
         }
 
         case StmtNode::RetStmt: {
-                auto node = dynamic_cast<RetNode*>(stmt);
+                auto node = dynamic_cast<RetNode *>(stmt);
                 if (node->ret_exp.has_value()) {
-                        resolve_exp(node->ret_exp.value().get(), vars, functions);
+                        resolve_exp(
+                                node->ret_exp.value().get(), vars, functions);
                 }
                 return;
         }

@@ -1,5 +1,5 @@
-// DO NOT EDIT MANUALLY. 
-// This file is completely overwritten by run_tests.py when compiling different 
+// DO NOT EDIT MANUALLY.
+// This file is completely overwritten by run_tests.py when compiling different
 // stages of Albatross.
 
 #define COMPILE_STAGE_LEXER

@@ -367,8 +367,8 @@ parse_assign_stmt(std::deque<std::shared_ptr<Token>> &tokens)
 std::unique_ptr<StmtNode>
 parse_return_stmt(std::deque<std::shared_ptr<Token>> &tokens)
 {
-        auto tok = expect_token_type(TokenType::KeywordReturn, tokens);
-        auto node      = std::make_unique<RetNode>();
+        auto tok  = expect_token_type(TokenType::KeywordReturn, tokens);
+        auto node = std::make_unique<RetNode>();
 
         if (tokens.front()->type != TokenType::Semicolon) {
                 auto ret_exp = parse_exp(tokens);
@@ -383,7 +383,7 @@ parse_return_stmt(std::deque<std::shared_ptr<Token>> &tokens)
 #endif
 #endif
 
-                node->ret_exp  = std::move(ret_exp);
+                node->ret_exp = std::move(ret_exp);
         }
 
         expect_token_type(TokenType::Semicolon, tokens);
