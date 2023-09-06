@@ -51,7 +51,7 @@ main(int argc, char *argv[])
                 resolve_stmts(stmts, vars, functions);
 #ifdef COMPILE_STAGE_TYPE_CHECKER
                 typecheck_stmts(stmts);
-                
+
                 bool should_optimize = true;
                 while (should_optimize) {
                         should_optimize = false;

@@ -196,10 +196,10 @@ dce_stmts(std::list<std::unique_ptr<StmtNode>> &stmts)
                         if (node->cond->kind == ExpNode::IntExp) {
                                 auto cond_node = dynamic_cast<IntNode *>(
                                         node->cond.get());
-                                
+
                                 // Eliminate while loops that will not execute
                                 if (cond_node->ival == 0) {
-                                        it = stmts.erase(it);
+                                        it            = stmts.erase(it);
                                         performed_dce = true;
                                         continue;
                                 }
@@ -211,10 +211,10 @@ dce_stmts(std::list<std::unique_ptr<StmtNode>> &stmts)
                         if (node->cond->kind == ExpNode::IntExp) {
                                 auto cond_node = dynamic_cast<IntNode *>(
                                         node->cond.get());
-                                
+
                                 // Eliminate repeat loops that will not execute
                                 if (cond_node->ival == 0) {
-                                        it = stmts.erase(it);
+                                        it            = stmts.erase(it);
                                         performed_dce = true;
                                         continue;
                                 }
@@ -232,7 +232,7 @@ dce_stmts(std::list<std::unique_ptr<StmtNode>> &stmts)
                         // Only erase something if there are statements after
                         // the return statement.
                         if (it_after != stmts.end()) {
-                                it = stmts.erase(it_after);
+                                it            = stmts.erase(it_after);
                                 performed_dce = true;
                         }
                         break;
