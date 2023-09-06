@@ -9,6 +9,7 @@
 #include "lexer.h"
 #include "parser.h"
 #include "symres.h"
+#include "transform_ast.h"
 #include "typecheck.h"
 
 int
@@ -50,6 +51,7 @@ main(int argc, char *argv[])
                 resolve_stmts(stmts, vars, functions);
 #ifdef COMPILE_STAGE_TYPE_CHECKER
                 typecheck_stmts(stmts);
+                fold_stmts(stmts);
 #endif
 #endif
 #endif
