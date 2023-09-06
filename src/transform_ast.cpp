@@ -7,7 +7,6 @@
 bool
 fold_exp(std::unique_ptr<ExpNode> &exp)
 {
-        std::cout << " Folding ! \n";
         bool folded_something = false;
 
         switch (exp->kind) {
