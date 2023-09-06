@@ -152,7 +152,7 @@ resolve_stmt(StmtNode             *stmt,
                 auto node = dynamic_cast<FundecNode *>(stmt);
 
                 // Make sure we're not redeclaring a function.
-                if (functions.cur_scope()->find_symbol(node->name)) {
+                if (functions.cur_scope()->find_symbol(node->name).has_value()) {
                         throw AlbatrossError("Redefinition of function "
                                                      + node->name,
                                              stmt->line_num,

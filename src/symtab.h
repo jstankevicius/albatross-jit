@@ -28,7 +28,7 @@ template <typename T> struct Scope {
 template <typename T> struct SymbolTable {
         std::vector<std::unique_ptr<Scope<T>>> scopes;
 
-        int sym_idx = 0;
+        int sym_idx = 1;
 
         void add_symbol(std::string &sym_name, T info)
         {

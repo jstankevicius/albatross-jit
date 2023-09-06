@@ -1,5 +1,6 @@
 #include "ast.h"
-#include <vector>
 #include <iostream>
+#include <vector>
 
-void fold_stmts(std::vector<std::unique_ptr<StmtNode>> &stmts);
+bool
+fold_stmts(std::vector<std::unique_ptr<StmtNode>> &stmts);

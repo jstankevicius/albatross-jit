@@ -20,7 +20,12 @@ typecheck_exp(ExpNode *exp)
                 try {
                         type = node->var_info.value().var_type;
                 } catch (std::bad_optional_access &e) {
-                        throw AlbatrossError("failed to read var_info for variable " + node->name, node->line_num, node->col_num, EXIT_FAILURE);
+                        throw AlbatrossError(
+                                "failed to read var_info for variable "
+                                        + node->name,
+                                node->line_num,
+                                node->col_num,
+                                EXIT_FAILURE);
                 }
 #ifdef COMPILE_STAGE_LEXER
 #ifdef COMPILE_STAGE_PARSER
@@ -117,8 +122,9 @@ typecheck_stmt(StmtNode *stmt, std::optional<Type> fun_ret_type = std::nullopt)
 #ifdef COMPILE_STAGE_PARSER
 #ifdef COMPILE_STAGE_SYMBOL_RESOLVER
 #ifdef COMPILE_STAGE_TYPE_CHECKER
-                std::cout << "Variable written \"" << var->name  << "\" type "
-                          << type_to_str(type_lhs) << "\n";
+                        std::cout << "Variable written \"" << var->name
+                                  << "\" type " << type_to_str(type_lhs)
+                                  << "\n";
 #endif
 #endif
 #endif
@@ -272,7 +278,8 @@ typecheck_stmt(StmtNode *stmt, std::optional<Type> fun_ret_type = std::nullopt)
                                 typecheck_exp(node->ret_exp.value().get()) :
                                 Type::Void;
 
-                if (fun_ret_type.has_value() && fun_ret_type.value() != ret_exp_type) {
+                if (fun_ret_type.has_value()
+                    && fun_ret_type.value() != ret_exp_type) {
                         throw AlbatrossError(
                                 "Return statement does not return type specified in "
                                 "function declaration.",

@@ -85,6 +85,8 @@ struct ExpNode {
         int line_num = -1;
         int col_num  = -1;
 
+        unsigned int reg = -1;
+
         enum ExpKind {
                 IntExp,
                 StringExp,

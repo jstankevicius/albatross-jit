@@ -59,6 +59,5 @@ struct Token {
 
         TokenType type;
 
-        // TODO: more types eventually?
         std::string string_value;
 };

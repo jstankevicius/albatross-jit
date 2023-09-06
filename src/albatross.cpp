@@ -51,7 +51,11 @@ main(int argc, char *argv[])
                 resolve_stmts(stmts, vars, functions);
 #ifdef COMPILE_STAGE_TYPE_CHECKER
                 typecheck_stmts(stmts);
-                fold_stmts(stmts);
+                
+                // Fold statements until we cannot
+                while (fold_stmts(stmts)) {
+                        std::cout << "Folded something!\n";
+                }
 #endif
 #endif
 #endif
