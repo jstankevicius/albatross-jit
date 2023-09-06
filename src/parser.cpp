@@ -638,10 +638,10 @@ parse_stmt(std::deque<std::unique_ptr<Token>> &tokens)
         }
 }
 
-std::vector<std::unique_ptr<StmtNode>>
+std::list<std::unique_ptr<StmtNode>>
 parse_stmts(std::deque<std::unique_ptr<Token>> &tokens)
 {
-        std::vector<std::unique_ptr<StmtNode>> stmts;
+        std::list<std::unique_ptr<StmtNode>> stmts;
         while (tokens.front()->type != TokenType::Eof) {
                 stmts.push_back(parse_stmt(tokens));
         }

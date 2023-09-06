@@ -328,8 +328,8 @@ typecheck_stmt(StmtNode *stmt, std::optional<Type> fun_ret_type = std::nullopt)
 }
 
 void
-typecheck_stmts(std::vector<std::unique_ptr<StmtNode>> &stmts,
-                std::optional<Type>                     fun_ret_type)
+typecheck_stmts(std::list<std::unique_ptr<StmtNode>> &stmts,
+                std::optional<Type>                   fun_ret_type)
 {
         for (auto &stmt : stmts) {
                 typecheck_stmt(stmt.get(), fun_ret_type);

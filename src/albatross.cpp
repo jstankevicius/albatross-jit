@@ -52,10 +52,13 @@ main(int argc, char *argv[])
 #ifdef COMPILE_STAGE_TYPE_CHECKER
                 typecheck_stmts(stmts);
                 
-                // Fold statements until we cannot
-                while (fold_stmts(stmts)) {
-                        std::cout << "Folded something!\n";
+                bool should_optimize = true;
+                while (should_optimize) {
+                        should_optimize = false;
+                        should_optimize |= fold_stmts(stmts);
+                        should_optimize |= dce_stmts(stmts);
                 }
+
 #endif
 #endif
 #endif

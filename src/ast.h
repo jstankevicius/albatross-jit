@@ -1,6 +1,7 @@
 #pragma once
 
 #include <deque>
+#include <list>
 #include <memory>
 #include <string>
 #include <variant>
@@ -257,9 +258,9 @@ struct VardeclNode : StmtNode {
 };
 
 struct IfNode : StmtNode {
-        std::unique_ptr<ExpNode>               cond;
-        std::vector<std::unique_ptr<StmtNode>> then_stmts;
-        std::vector<std::unique_ptr<StmtNode>> else_stmts;
+        std::unique_ptr<ExpNode>             cond;
+        std::list<std::unique_ptr<StmtNode>> then_stmts;
+        std::list<std::unique_ptr<StmtNode>> else_stmts;
 
         IfNode()
         {
@@ -268,9 +269,9 @@ struct IfNode : StmtNode {
 };
 
 struct WhileNode : StmtNode {
-        std::unique_ptr<ExpNode>               cond;
-        std::vector<std::unique_ptr<StmtNode>> body_stmts;
-        std::vector<std::unique_ptr<StmtNode>> otherwise_stmts;
+        std::unique_ptr<ExpNode>             cond;
+        std::list<std::unique_ptr<StmtNode>> body_stmts;
+        std::list<std::unique_ptr<StmtNode>> otherwise_stmts;
 
         WhileNode()
         {
@@ -279,8 +280,8 @@ struct WhileNode : StmtNode {
 };
 
 struct RepeatNode : StmtNode {
-        std::unique_ptr<ExpNode>               cond;
-        std::vector<std::unique_ptr<StmtNode>> body_stmts;
+        std::unique_ptr<ExpNode>             cond;
+        std::list<std::unique_ptr<StmtNode>> body_stmts;
 
         RepeatNode()
         {
@@ -300,10 +301,10 @@ struct CallStmtNode : StmtNode {
 };
 
 struct FundecNode : StmtNode {
-        std::string                            name;
-        Type                                   ret_type;
-        std::vector<ParamNode>                 params;
-        std::vector<std::unique_ptr<StmtNode>> body;
+        std::string                          name;
+        Type                                 ret_type;
+        std::vector<ParamNode>               params;
+        std::list<std::unique_ptr<StmtNode>> body;
 
         FundecNode()
         {

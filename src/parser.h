@@ -22,5 +22,5 @@ parse_exp(std::deque<std::unique_ptr<Token>> &tokens);
 std::unique_ptr<StmtNode>
 parse_stmt(std::deque<std::unique_ptr<Token>> &tokens);
 
-std::vector<std::unique_ptr<StmtNode>>
+std::list<std::unique_ptr<StmtNode>>
 parse_stmts(std::deque<std::unique_ptr<Token>> &tokens);

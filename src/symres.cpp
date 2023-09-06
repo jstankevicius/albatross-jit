@@ -191,9 +191,9 @@ resolve_stmt(StmtNode             *stmt,
 }
 
 void
-resolve_stmts(std::vector<std::unique_ptr<StmtNode>> &stmts,
-              SymbolTable<VarInfo>                   &vars,
-              SymbolTable<FunInfo>                   &functions)
+resolve_stmts(std::list<std::unique_ptr<StmtNode>> &stmts,
+              SymbolTable<VarInfo>                 &vars,
+              SymbolTable<FunInfo>                 &functions)
 {
         for (auto &stmt : stmts) {
                 resolve_stmt(stmt.get(), vars, functions);
