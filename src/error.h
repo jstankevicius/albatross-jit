@@ -9,37 +9,37 @@
 #define EXIT_RUNTIME_FAILURE (char)205
 
 class AlbatrossError : public std::runtime_error {
-    private:
-        int  _line_num;
-        int  _col_num;
-        char _exit_code;
+private:
+    int  _line_num;
+    int  _col_num;
+    char _exit_code;
 
-    public:
-        AlbatrossError(const std::string &msg,
-                       int                line_num,
-                       int                col_num,
-                       char               exit_code)
-                : std::runtime_error(msg)
-                , _line_num(line_num)
-                , _col_num(col_num)
-                , _exit_code(exit_code)
-        {
-        }
+public:
+    AlbatrossError(const std::string &msg,
+                   int                line_num,
+                   int                col_num,
+                   char               exit_code)
+        : std::runtime_error(msg)
+        , _line_num(line_num)
+        , _col_num(col_num)
+        , _exit_code(exit_code)
+    {
+    }
 
-        int line_num()
-        {
-                return _line_num;
-        }
+    int line_num()
+    {
+        return _line_num;
+    }
 
-        int col_num()
-        {
-                return _col_num;
-        }
+    int col_num()
+    {
+        return _col_num;
+    }
 
-        char exit_code()
-        {
-                return _exit_code;
-        }
+    char exit_code()
+    {
+        return _exit_code;
+    }
 };
 
 void

@@ -1,13 +1,13 @@
 #include <vector>
 
 struct Frame {
-        std::vector<int> stack;
+    std::vector<int> stack;
 
-        // Really, a function call frame just needs a stack. On this stack we put
-        // arguments, the return address, any registers we are saving, etc. All
-        // variables go into our infinite set of registers.
+    // Really, a function call frame just needs a stack. On this stack we put
+    // arguments, the return address, any registers we are saving, etc. All
+    // variables go into our infinite set of registers.
 
-        /**
+    /**
      * on fn call:
      * 
      * Look at the IR registers that this function will use for local variables.
@@ -16,7 +16,7 @@ struct Frame {
      * 
      */
 
-        /**
+    /**
      * fun f int(a int) {
      *     var b int := 2;
      *     return a + b + 2;  

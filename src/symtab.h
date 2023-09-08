@@ -6,67 +6,67 @@
 #include <unordered_map>
 
 template <typename T> struct Scope {
-        std::unordered_map<std::string, T> symbols;
+    std::unordered_map<std::string, T> symbols;
 
-        void add_symbol(std::string &sym_name, T info)
-        {
-                symbols.emplace(sym_name, info);
+    void add_symbol(std::string &sym_name, T info)
+    {
+        symbols.emplace(sym_name, info);
+    }
+
+    std::optional<T> find_symbol(std::string &sym_name)
+    {
+        if (symbols.count(sym_name) > 0) {
+            return symbols[sym_name];
         }
 
-        std::optional<T> find_symbol(std::string &sym_name)
-        {
-                if (symbols.count(sym_name) > 0) {
-                        return symbols[sym_name];
-                }
-
-                return {};
-        }
+        return {};
+    }
 };
 
 // This struct should persist for the entire duration of the program. It should
 // never be destructed unless the interpreter process is dead.
 template <typename T> struct SymbolTable {
-        std::vector<std::unique_ptr<Scope<T>>> scopes;
+    std::vector<std::unique_ptr<Scope<T>>> scopes;
 
-        int sym_idx = 1;
+    int sym_idx = 1;
 
-        void add_symbol(std::string &sym_name, T info)
-        {
-                cur_scope()->add_symbol(sym_name, info);
-                sym_idx++;
+    void add_symbol(std::string &sym_name, T info)
+    {
+        cur_scope()->add_symbol(sym_name, info);
+        sym_idx++;
+    }
+
+    std::optional<T> find_symbol(std::string &sym_name)
+    {
+        assert(!scopes.empty());
+
+        // Start at the narrowest scope and move up, looking for the symbol
+        for (auto rit = scopes.rbegin(); rit != scopes.rend(); ++rit) {
+            auto &scope = *rit;
+            auto  sym   = scope->find_symbol(sym_name);
+            if (sym) {
+                return sym;
+            }
         }
 
-        std::optional<T> find_symbol(std::string &sym_name)
-        {
-                assert(!scopes.empty());
+        // Didn't find symbol, so return nothing. Throwing an error is up to the
+        // caller.
+        return {};
+    }
 
-                // Start at the narrowest scope and move up, looking for the symbol
-                for (auto rit = scopes.rbegin(); rit != scopes.rend(); ++rit) {
-                        auto &scope = *rit;
-                        auto  sym   = scope->find_symbol(sym_name);
-                        if (sym) {
-                                return sym;
-                        }
-                }
+    std::unique_ptr<Scope<T>> &cur_scope()
+    {
+        return scopes.back();
+    }
 
-                // Didn't find symbol, so return nothing. Throwing an error is up to the
-                // caller.
-                return {};
-        }
+    void enter_scope()
+    {
+        scopes.push_back(std::make_unique<Scope<T>>());
+    }
 
-        std::unique_ptr<Scope<T>> &cur_scope()
-        {
-                return scopes.back();
-        }
-
-        void enter_scope()
-        {
-                scopes.push_back(std::make_unique<Scope<T>>());
-        }
-
-        void exit_scope()
-        {
-                assert(scopes.size() > 1);
-                scopes.pop_back();
-        }
+    void exit_scope()
+    {
+        assert(scopes.size() > 1);
+        scopes.pop_back();
+    }
 };

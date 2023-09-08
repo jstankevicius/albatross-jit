@@ -1,3 +1,5 @@
-repeat (0) {
-   var b int := 1 / 0; 
-}
+return 0;
+return 0;
+return 0;
+return 0;
+return 0;
