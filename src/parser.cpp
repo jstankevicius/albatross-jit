@@ -76,17 +76,17 @@ op_binding_power(TokenType op, bool minus_prefix_flag = false)
     case TokenType::OpNot:
         return OpInfo{ Operator::Not, -1, 190, OpInfo::Prefix };
     case TokenType::OpTimes:
-        return OpInfo{ Operator::Times, 175, 180, OpInfo::Infix };
+        return OpInfo{ Operator::Mul, 175, 180, OpInfo::Infix };
     case TokenType::OpDiv:
         return OpInfo{ Operator::Div, 175, 180, OpInfo::Infix };
     case TokenType::OpRem:
         return OpInfo{ Operator::Rem, 175, 180, OpInfo::Infix };
     case TokenType::OpPlus:
-        return OpInfo{ Operator::Plus, 165, 170, OpInfo::Infix };
+        return OpInfo{ Operator::Add, 165, 170, OpInfo::Infix };
     case TokenType::OpMinus:
         return minus_prefix_flag ?
-                   OpInfo{ Operator::Minus, -1, 190, OpInfo::Prefix } :
-                   OpInfo{ Operator::Minus, 165, 170, OpInfo::Infix };
+                   OpInfo{ Operator::Sub, -1, 190, OpInfo::Prefix } :
+                   OpInfo{ Operator::Sub, 165, 170, OpInfo::Infix };
     case TokenType::OpLt:
         return OpInfo{ Operator::Lt, 145, 150, OpInfo::Infix };
     case TokenType::OpLe:

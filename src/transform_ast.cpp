@@ -44,9 +44,9 @@ fold_exp(std::unique_ptr<ExpNode> &exp)
             case Operator::Ge: res->ival = vlhs >= vrhs; break;
             case Operator::Lt: res->ival = vlhs < vrhs; break;
             case Operator::Le: res->ival = vlhs <= vrhs; break;
-            case Operator::Plus: res->ival = vlhs + vrhs; break;
-            case Operator::Minus: res->ival = vlhs - vrhs; break;
-            case Operator::Times: res->ival = vlhs * vrhs; break;
+            case Operator::Add: res->ival = vlhs + vrhs; break;
+            case Operator::Sub: res->ival = vlhs - vrhs; break;
+            case Operator::Mul: res->ival = vlhs * vrhs; break;
             case Operator::Div: res->ival = vlhs / vrhs; break;
             case Operator::Rem: res->ival = vlhs % vrhs; break;
             default: perror("Invalid operator"); exit(EXIT_FAILURE);
@@ -159,6 +159,7 @@ dce_stmts(std::list<std::unique_ptr<StmtNode>> &stmts)
     auto it = stmts.begin();
     while (it != stmts.end()) {
         auto &stmt = *it;
+
         switch (stmt->kind) {
         case StmtNode::VardeclStmt: break;
         case StmtNode::AssignStmt: break;
@@ -216,11 +217,11 @@ dce_stmts(std::list<std::unique_ptr<StmtNode>> &stmts)
         }
         case StmtNode::CallStmt: break;
         case StmtNode::FundecStmt: {
-                auto node = dynamic_cast<FundecNode*>(stmt.get());
-                if (dce_stmts(node->body)) {
-                        performed_dce = true;
-                }
-                break;
+            auto node = dynamic_cast<FundecNode *>(stmt.get());
+            if (dce_stmts(node->body)) {
+                performed_dce = true;
+            }
+            break;
         }
 
         // Erase all statements after the return statement.

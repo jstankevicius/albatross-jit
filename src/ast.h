@@ -26,18 +26,15 @@ enum class Operator {
     Ge,
     Lt,
     Le,
-    Plus,
-    Minus,
-    Times,
+    Add,
+    Sub,
+    Mul,
     Div,
     Rem,
 
     // Prefix operators
     Not,
     Neg,
-
-    // Postfix operators
-    Sub
 };
 
 static std::string
@@ -55,17 +52,17 @@ op_str(Operator op)
     case Operator::Ge: return ">=";
     case Operator::Lt: return "<";
     case Operator::Le: return "<=";
-    case Operator::Plus: return "+";
-    case Operator::Minus: return "-";
-    case Operator::Times: return "*";
+    case Operator::Add: return "+";
+    case Operator::Sub: return "-";
+    case Operator::Mul: return "*";
     case Operator::Div: return "/";
     case Operator::Rem: return "%";
     case Operator::Not: return "!";
     case Operator::Neg: return "-";
-    case Operator::Sub: return "[";
     default: perror("Invalid operator"); exit(EXIT_FAILURE);
     }
 }
+
 typedef struct {
     std::string name;
     Type        type;
@@ -82,6 +79,24 @@ typedef struct {
     std::vector<ParamNode> params;
 } FunInfo;
 
+struct ExpNode;
+struct IntNode;
+struct StrNode;
+struct VarNode;
+struct BinOpNode;
+struct UnOpNode;
+struct CallNode;
+
+class ExpVisitor {
+public:
+    virtual void visit_int_node(IntNode *node)     = 0;
+    virtual void visit_string_node(StrNode *node)  = 0;
+    virtual void visit_var_node(VarNode *node)     = 0;
+    virtual void visit_binop_node(BinOpNode *node) = 0;
+    virtual void visit_unop_node(UnOpNode *node)   = 0;
+    virtual void visit_call_node(CallNode *node)   = 0;
+};
+
 struct ExpNode {
     int line_num = -1;
     int col_num  = -1;
@@ -90,10 +105,14 @@ struct ExpNode {
 
     enum ExpKind { IntExp, StringExp, VarExp, BinopExp, UnopExp, CallExp } kind;
 
+    Type value_type;
+
     virtual std::string to_str() = 0;
     virtual ~ExpNode()
     {
     }
+
+    virtual void accept(ExpVisitor &visitor) = 0;
 };
 
 struct IntNode : ExpNode {
@@ -104,9 +123,14 @@ struct IntNode : ExpNode {
         kind = ExpKind::IntExp;
     }
 
-    std::string to_str()
+    std::string to_str() override
     {
         return "(" + std::to_string(ival) + ")";
+    }
+
+    void accept(ExpVisitor &visitor) override
+    {
+        visitor.visit_int_node(this);
     }
 };
 
@@ -118,9 +142,14 @@ struct StrNode : ExpNode {
         kind = ExpKind::StringExp;
     }
 
-    std::string to_str()
+    std::string to_str() override
     {
         return "(\"" + sval + "\")";
+    }
+
+    void accept(ExpVisitor &visitor) override
+    {
+        visitor.visit_string_node(this);
     }
 };
 
@@ -140,9 +169,14 @@ struct UnOpNode : ExpNode {
         e    = std::move(_e);
     }
 
-    std::string to_str()
+    std::string to_str() override
     {
         return "(" + op_str(op) + e->to_str() + ")";
+    }
+
+    void accept(ExpVisitor &visitor) override
+    {
+        visitor.visit_unop_node(this);
     }
 };
 
@@ -166,9 +200,14 @@ struct BinOpNode : ExpNode {
         rhs.swap(_rhs);
     }
 
-    std::string to_str()
+    std::string to_str() override
     {
         return "(" + lhs->to_str() + op_str(op) + rhs->to_str() + ")";
+    }
+
+    void accept(ExpVisitor &visitor) override
+    {
+        visitor.visit_binop_node(this);
     }
 };
 
@@ -181,9 +220,14 @@ struct VarNode : ExpNode {
         kind = ExpKind::VarExp;
     }
 
-    std::string to_str()
+    std::string to_str() override
     {
         return "(" + name + ")";
+    }
+
+    void accept(ExpVisitor &visitor) override
+    {
+        visitor.visit_var_node(this);
     }
 };
 
@@ -197,7 +241,7 @@ struct CallNode : ExpNode {
         kind = ExpKind::CallExp;
     }
 
-    std::string to_str()
+    std::string to_str() override
     {
         std::string arg_str = "";
         for (unsigned int i = 0; i < args.size(); i++) {
@@ -209,6 +253,36 @@ struct CallNode : ExpNode {
 
         return name + "(" + arg_str + ")";
     }
+
+    void accept(ExpVisitor &visitor) override
+    {
+        visitor.visit_call_node(this);
+    }
+};
+
+struct StmtNode;
+struct AssignNode;
+struct VardeclNode;
+struct IfNode;
+struct WhileNode;
+struct RepeatNode;
+struct CallStmtNode;
+struct FundecNode;
+struct RetNode;
+
+class StmtVisitor {
+private:
+public:
+    virtual void visit_assign_node(AssignNode *node)      = 0;
+    virtual void visit_vardecl_node(VardeclNode *node)    = 0;
+    virtual void visit_if_node(IfNode *node)              = 0;
+    virtual void visit_while_node(WhileNode *node)        = 0;
+    virtual void visit_repeat_node(RepeatNode *node)      = 0;
+    virtual void visit_call_stmt_node(CallStmtNode *node) = 0;
+    virtual void visit_fundec_node(FundecNode *node)      = 0;
+    virtual void visit_ret_node(RetNode *node)            = 0;
+
+    virtual void visit_stmts(std::list<std::unique_ptr<StmtNode>> &stmts) = 0;
 };
 
 struct StmtNode {
@@ -226,7 +300,8 @@ struct StmtNode {
         RetStmt
     } kind;
 
-    virtual ~StmtNode() = default;
+    virtual ~StmtNode()                       = default;
+    virtual void accept(StmtVisitor &visitor) = 0;
 };
 
 struct AssignNode : StmtNode {
@@ -237,16 +312,26 @@ struct AssignNode : StmtNode {
     {
         kind = StmtKind::AssignStmt;
     }
+
+    void accept(StmtVisitor &visitor) override
+    {
+        visitor.visit_assign_node(this);
+    }
 };
 
 struct VardeclNode : StmtNode {
-    std::string              lhs;
     Type                     type;
+    std::string              lhs;
     std::unique_ptr<ExpNode> rhs;
 
     VardeclNode()
     {
         kind = StmtKind::VardeclStmt;
+    }
+
+    void accept(StmtVisitor &visitor) override
+    {
+        visitor.visit_vardecl_node(this);
     }
 };
 
@@ -259,6 +344,11 @@ struct IfNode : StmtNode {
     {
         kind = StmtKind::IfStmt;
     }
+
+    void accept(StmtVisitor &visitor) override
+    {
+        visitor.visit_if_node(this);
+    }
 };
 
 struct WhileNode : StmtNode {
@@ -270,6 +360,11 @@ struct WhileNode : StmtNode {
     {
         kind = StmtKind::WhileStmt;
     }
+
+    void accept(StmtVisitor &visitor) override
+    {
+        visitor.visit_while_node(this);
+    }
 };
 
 struct RepeatNode : StmtNode {
@@ -279,6 +374,11 @@ struct RepeatNode : StmtNode {
     RepeatNode()
     {
         kind = StmtKind::RepeatStmt;
+    }
+
+    void accept(StmtVisitor &visitor) override
+    {
+        visitor.visit_repeat_node(this);
     }
 };
 
@@ -291,17 +391,27 @@ struct CallStmtNode : StmtNode {
     {
         kind = StmtKind::CallStmt;
     }
+
+    void accept(StmtVisitor &visitor) override
+    {
+        visitor.visit_call_stmt_node(this);
+    }
 };
 
 struct FundecNode : StmtNode {
-    std::string                          name;
     Type                                 ret_type;
+    std::string                          name;
     std::vector<ParamNode>               params;
     std::list<std::unique_ptr<StmtNode>> body;
 
     FundecNode()
     {
         kind = StmtKind::FundecStmt;
+    }
+
+    void accept(StmtVisitor &visitor) override
+    {
+        visitor.visit_fundec_node(this);
     }
 };
 
@@ -311,5 +421,10 @@ struct RetNode : StmtNode {
     RetNode()
     {
         kind = StmtKind::RetStmt;
+    }
+
+    void accept(StmtVisitor &visitor) override
+    {
+        visitor.visit_ret_node(this);
     }
 };
