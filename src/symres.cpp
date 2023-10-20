@@ -6,19 +6,19 @@
 #include <iostream>
 
 void
-SymbolResolverExpVisitor::visit_int_node(IntNode *node){
+SymbolResolverVisitor::visit_int_node(IntNode *node){
     // Nothing to do.
 };
 
 void
-SymbolResolverExpVisitor::visit_string_node(StrNode *node){
+SymbolResolverVisitor::visit_string_node(StrNode *node){
     // Nothing to do.
 };
 
 void
-SymbolResolverExpVisitor::visit_var_node(VarNode *node)
+SymbolResolverVisitor::visit_var_node(VarNode *node)
 {
-    auto res = parent.vars.find_symbol(node->name);
+    auto res = vars.find_symbol(node->name);
 
     // If res has no value, there was no corresponding vardecl that declared
     // this variable. Error out:
@@ -34,22 +34,22 @@ SymbolResolverExpVisitor::visit_var_node(VarNode *node)
 }
 
 void
-SymbolResolverExpVisitor::visit_binop_node(BinOpNode *node)
+SymbolResolverVisitor::visit_binop_node(BinOpNode *node)
 {
     node->lhs->accept(*this);
     node->rhs->accept(*this);
 }
 
 void
-SymbolResolverExpVisitor::visit_unop_node(UnOpNode *node)
+SymbolResolverVisitor::visit_unop_node(UnOpNode *node)
 {
     node->e->accept(*this);
 }
 
 void
-SymbolResolverExpVisitor::visit_call_node(CallNode *node)
+SymbolResolverVisitor::visit_call_node(CallNode *node)
 {
-    auto res = parent.functions.find_symbol(node->name);
+    auto res = functions.find_symbol(node->name);
 
     if (!res.has_value()) {
         throw AlbatrossError("Undefined function " + node->name,
@@ -67,14 +67,14 @@ SymbolResolverExpVisitor::visit_call_node(CallNode *node)
 }
 
 void
-SymbolResolverStmtVisitor::visit_assign_node(AssignNode *node)
+SymbolResolverVisitor::visit_assign_node(AssignNode *node)
 {
-    node->lhs->accept(*exp_visitor.get());
-    node->rhs->accept(*exp_visitor.get());
+    node->lhs->accept(*this);
+    node->rhs->accept(*this);
 }
 
 void
-SymbolResolverStmtVisitor::visit_vardecl_node(VardeclNode *node)
+SymbolResolverVisitor::visit_vardecl_node(VardeclNode *node)
 {
     Type  type = node->type;
     auto &name = node->lhs;
@@ -87,16 +87,16 @@ SymbolResolverStmtVisitor::visit_vardecl_node(VardeclNode *node)
                              EXIT_SYMRES_FAILURE);
     }
 
-    node->rhs->accept(*exp_visitor);
+    node->rhs->accept(*this);
 
     // Construct a VarInfo struct for this variable.
     vars.add_symbol(name, VarInfo{ type, vars.sym_idx });
 }
 
 void
-SymbolResolverStmtVisitor::visit_if_node(IfNode *node)
+SymbolResolverVisitor::visit_if_node(IfNode *node)
 {
-    node->cond->accept(*exp_visitor);
+    node->cond->accept(*this);
     vars.enter_scope();
     visit_stmts(node->then_stmts);
     vars.exit_scope();
@@ -107,11 +107,11 @@ SymbolResolverStmtVisitor::visit_if_node(IfNode *node)
 }
 
 void
-SymbolResolverStmtVisitor::visit_while_node(WhileNode *node)
+SymbolResolverVisitor::visit_while_node(WhileNode *node)
 {
-    node->cond->accept(*exp_visitor);
+    node->cond->accept(*this);
     vars.enter_scope();
-    visit_stmts(node->otherwise_stmts);
+    visit_stmts(node->body_stmts);
     vars.exit_scope();
 
     vars.enter_scope();
@@ -120,16 +120,16 @@ SymbolResolverStmtVisitor::visit_while_node(WhileNode *node)
 }
 
 void
-SymbolResolverStmtVisitor::visit_repeat_node(RepeatNode *node)
+SymbolResolverVisitor::visit_repeat_node(RepeatNode *node)
 {
-    node->cond->accept(*exp_visitor);
+    node->cond->accept(*this);
     vars.enter_scope();
     visit_stmts(node->body_stmts);
     vars.exit_scope();
 }
 
 void
-SymbolResolverStmtVisitor::visit_call_stmt_node(CallStmtNode *node)
+SymbolResolverVisitor::visit_call_stmt_node(CallStmtNode *node)
 {
     auto res = functions.find_symbol(node->name);
 
@@ -141,13 +141,13 @@ SymbolResolverStmtVisitor::visit_call_stmt_node(CallStmtNode *node)
     }
 
     for (auto &arg : node->args) {
-        arg->accept(*exp_visitor);
+        arg->accept(*this);
     }
     node->fun_info = res;
 }
 
 void
-SymbolResolverStmtVisitor::visit_fundec_node(FundecNode *node)
+SymbolResolverVisitor::visit_fundec_node(FundecNode *node)
 {
     // Make sure we're not redeclaring a function.
     if (functions.cur_scope()->find_symbol(node->name).has_value()) {
@@ -172,16 +172,15 @@ SymbolResolverStmtVisitor::visit_fundec_node(FundecNode *node)
 }
 
 void
-SymbolResolverStmtVisitor::visit_ret_node(RetNode *node)
+SymbolResolverVisitor::visit_ret_node(RetNode *node)
 {
     if (node->ret_exp.has_value()) {
-        node->ret_exp.value()->accept(*exp_visitor.get());
+        node->ret_exp.value()->accept(*this);
     }
 }
 
 void
-SymbolResolverStmtVisitor::visit_stmts(
-    std::list<std::unique_ptr<StmtNode>> &stmts)
+SymbolResolverVisitor::visit_stmts(std::list<std::unique_ptr<StmtNode>> &stmts)
 {
     for (auto &stmt : stmts) {
         stmt->accept(*this);

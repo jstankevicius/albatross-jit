@@ -42,13 +42,13 @@ main(int argc, char *argv[])
         auto stmts = parse_stmts(tokens);
 
 #ifdef COMPILE_STAGE_SYMBOL_RESOLVER
-        SymbolResolverStmtVisitor srsv;
-        for (auto &stmt : stmts) {
-            stmt->accept(srsv);
-        }
+        SymbolResolverVisitor srsv;
+        srsv.visit_stmts(stmts);
 
 #ifdef COMPILE_STAGE_TYPE_CHECKER
-        typecheck_stmts(stmts);
+
+        TypecheckVisitor tcsv;
+        tcsv.visit_stmts(stmts);
 
         bool should_optimize = true;
         while (should_optimize) {
@@ -64,5 +64,13 @@ main(int argc, char *argv[])
     } catch (AlbatrossError &e) {
         print_err(content, e.line_num(), e.col_num(), e.what());
         exit(e.exit_code());
+    }
+}
+
+void
+TypecheckVisitor::visit_stmts(std::list<std::unique_ptr<StmtNode>> &stmts)
+{
+    for (auto &stmt : stmts) {
+        stmt->accept(*this);
     }
 }

@@ -103,9 +103,10 @@ struct ExpNode {
 
     unsigned int reg = -1;
 
-    enum ExpKind { IntExp, StringExp, VarExp, BinopExp, UnopExp, CallExp } kind;
+    std::optional<Type> value_type;
+    std::optional<int>  constprop_value;
 
-    Type value_type;
+    enum ExpKind { IntExp, StringExp, VarExp, BinopExp, UnopExp, CallExp } kind;
 
     virtual std::string to_str() = 0;
     virtual ~ExpNode()
@@ -271,7 +272,6 @@ struct FundecNode;
 struct RetNode;
 
 class StmtVisitor {
-private:
 public:
     virtual void visit_assign_node(AssignNode *node)      = 0;
     virtual void visit_vardecl_node(VardeclNode *node)    = 0;

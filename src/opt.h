@@ -1,13 +1,7 @@
-#pragma once
-
 #include "ast.h"
 
-class TypecheckVisitor : public StmtVisitor, public ExpVisitor {
-private:
-    std::optional<Type> fun_ret_type = std::nullopt;
-
-    Type typecheck_exp(ExpNode *exp);
-
+class OptimizerVisitor : public StmtVisitor, public ExpVisitor {
+    private:
     void visit_int_node(IntNode *node) override;
     void visit_string_node(StrNode *node) override;
     void visit_var_node(VarNode *node) override;
@@ -23,11 +17,8 @@ private:
     void visit_call_stmt_node(CallStmtNode *node) override;
     void visit_fundec_node(FundecNode *node) override;
     void visit_ret_node(RetNode *node) override;
-public:
 
+    public:
     void visit_stmts(std::list<std::unique_ptr<StmtNode>> &stmts) override;
-
-    ~TypecheckVisitor()
-    {
-    }
+    OptimizerVisitor();
 };

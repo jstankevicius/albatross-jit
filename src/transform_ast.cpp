@@ -193,6 +193,7 @@ dce_stmts(std::list<std::unique_ptr<StmtNode>> &stmts)
                 auto cond_node = dynamic_cast<IntNode *>(node->cond.get());
 
                 // Eliminate while loops that will not execute
+                // This is wrong
                 if (cond_node->ival == 0) {
                     it            = stmts.erase(it);
                     performed_dce = true;
